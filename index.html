@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CreatorCash Pro - Final Fixed</title>
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDK (Version 8.10.1 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <!-- === GIGAPUB AD NETWORK SCRIPT === -->
+    <script src="https://ad.gigapub.tech/script?id=3555"></script>
+
+    <style>
+        :root {
+            --bg-body: #F5F7FA;
+            --white: #FFFFFF;
+            --text-main: #1F2937;
+            --text-light: #6B7280;
+            --border-color: #F3F4F6;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            --g-purple: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            --g-blue: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            --g-pink: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%);
+            --g-orange: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            --g-dark: linear-gradient(135deg, #1F2937 0%, #000000 100%);
+            --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FDB931 50%, #FFD700 100%);
+            --premium-bg: linear-gradient(135deg, #1c1c1c 0%, #2d2d2d 100%);
+            --black-gradient: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            --radius: 18px;
+        }
+        body.dark-mode {
+            --bg-body: #111827;
+            --white: #1F2937;
+            --text-main: #F9FAFB;
+            --text-light: #9CA3AF;
+            --border-color: #374151;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; }
+
+        /* HEADER */
+        .header { padding: 15px 20px; background: var(--white); display: none; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 50; transition: 0.3s; }
+        .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; }
+        .logo-box { width: 32px; height: 32px; background: var(--g-blue); border-radius: 8px; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .points-pill { background: var(--border-color); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--text-main); }
+
+        /* PREMIUM BADGE STYLE */
+        .premium-badge {
+            background: var(--gold-gradient);
+            color: #000;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            display: none; 
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 5px rgba(255, 215, 0, 0.4);
+            animation: pulseBadge 2s infinite;
+        }
+        @keyframes pulseBadge { 0% { opacity: 0.8; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.8; transform: scale(0.95); } }
+
+        /* SUBSCRIPTION PROGRESS CARD */
+        .sub-progress-card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+        .sp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .sp-title { font-size: 14px; font-weight: 700; color: #D97706; display: flex; align-items: center; gap: 6px; }
+        .sp-days-left { font-size: 12px; font-weight: 600; color: var(--text-light); }
+        .sp-bar-bg { width: 100%; height: 8px; background: var(--border-color); border-radius: 10px; overflow: hidden; position: relative; }
+        .sp-bar-fill { height: 100%; background: var(--g-orange); width: 0%; border-radius: 10px; transition: width 0.5s ease; }
+        .sp-date { font-size: 10px; color: var(--text-light); margin-top: 8px; text-align: right; }
+
+        /* AUTH SECTION STYLES */
+        #auth-section { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 2000; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .auth-card { background: var(--white); width: 100%; max-width: 400px; padding: 30px 20px; border-radius: 24px; box-shadow: var(--card-shadow); animation: fadeUp 0.5s ease-out; }
+        .auth-logo { text-align: center; margin-bottom: 25px; }
+        .auth-logo i { font-size: 40px; color: #8B5CF6; background: #EDE9FE; padding: 15px; border-radius: 16px; margin-bottom: 10px; }
+        .auth-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 5px; color: var(--text-main); }
+        .auth-sub { font-size: 14px; color: var(--text-light); text-align: center; margin-bottom: 25px; }
+        
+        .auth-input-group { margin-bottom: 15px; }
+        .auth-label { font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: block; }
+        .auth-input-box { position: relative; }
+        .auth-input { width: 100%; padding: 14px 14px 14px 45px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-main); font-weight: 500; font-size: 14px; outline: none; transition: 0.3s; }
+        .auth-input:focus { border-color: #8B5CF6; background: var(--white); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+        .auth-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 16px; }
+        
+        .gender-options { display: flex; gap: 10px; margin-top: 5px; }
+        .gender-opt { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-light); transition: 0.2s; }
+        .gender-opt.active { background: #EDE9FE; border-color: #8B5CF6; color: #8B5CF6; }
+        
+        .auth-btn { background: var(--g-purple); color: white; width: 100%; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2); transition: 0.2s; }
+        .auth-btn:active { transform: scale(0.98); }
+        
+        .auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-light); }
+        .auth-link { color: #8B5CF6; font-weight: 700; cursor: pointer; text-decoration: none; }
+        
+        .grid-2-input { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hidden { display: none; }
+
+        /* MAIN CONTENT */
+        .main-container { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 100px; display: none; }
+        .page { display: none; animation: fadeUp 0.3s ease-out; }
+        .page.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CARDS */
+        .card { border-radius: var(--radius); color: white; padding: 20px; position: relative; overflow: hidden; margin-bottom: 15px; box-shadow: 0 8px 15px -3px rgba(0,0,0,0.1); }
+        .balance-card { background: #000000; background-image: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.15) 0%, transparent 40%), radial-gradient(circle at 0% 100%, rgba(255,255,255,0.1) 0%, transparent 40%), linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%); height: auto; min-height: 140px; display: flex; flex-direction: column; justify-content: center; gap: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .bal-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .bal-label { font-size: 12px; color: #9CA3AF; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .bal-amount { font-size: 32px; font-weight: 800; color: #FFFFFF; }
+        .bal-coins-box { display: flex; align-items: center; gap: 8px; }
+        .bal-coins-val { font-size: 18px; font-weight: 700; color: #FFD700; }
+        .action-btn { padding: 8px 20px; border-radius: 50px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; min-width: 110px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-withdraw { background: #FFFFFF; color: black; box-shadow: 0 4px 10px rgba(255,255,255,0.2); }
+        .btn-convert { background: rgba(255, 215, 0, 0.2); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.5); }
+        .btn-convert:active { transform: scale(0.95); background: rgba(255, 215, 0, 0.3); }
+
+        /* SHOP / E-COMMERCE STYLES */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .product-card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--card-shadow); display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+        .prod-img-box { width: 100%; height: 120px; background: #f1f1f1; position: relative; }
+        .prod-img { width: 100%; height: 100%; object-fit: cover; }
+        .prod-details { padding: 10px; display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
+        .prod-title { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .prod-price { font-size: 14px; font-weight: 800; color: #F59E0B; }
+        .btn-buy { margin-top: auto; background: var(--text-main); color: white; border: none; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-buy:active { transform: scale(0.98); }
+
+        /* LEADERBOARD STYLES */
+        .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 15px; margin-bottom: 30px; padding-top: 20px; }
+        .pod-item { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 2; }
+        .pod-avatar-box { position: relative; margin-bottom: 10px; }
+        .pod-crown { position: absolute; top: -22px; left: 50%; transform: translateX(-50%) rotate(-5deg); font-size: 24px; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .pod-img { width: 60px; height: 60px; border-radius: 50%; background: #E5E7EB; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); object-fit: cover; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .rank-1 .pod-img { width: 80px; height: 80px; border-color: #FFD700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+        .rank-2 .pod-img { border-color: #C0C0C0; }
+        .rank-3 .pod-img { border-color: #CD7F32; }
+        .pod-rank-badge { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; border: 2px solid white; }
+        .rank-1 .pod-rank-badge { background: #FFD700; width: 28px; height: 28px; font-size: 14px; }
+        .rank-2 .pod-rank-badge { background: #C0C0C0; }
+        .rank-3 .pod-rank-badge { background: #CD7F32; }
+        .pod-name { font-size: 12px; font-weight: 700; margin-bottom: 2px; text-align: center; max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pod-refs { font-size: 10px; color: var(--text-light); background: var(--white); padding: 2px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: 600; }
+        .lb-list { padding-bottom: 20px; }
+        .lb-item { background: var(--white); padding: 10px 15px; border-radius: 12px; display: flex; align-items: center; margin-bottom: 8px; box-shadow: var(--card-shadow); }
+        .lb-rank { width: 30px; font-size: 14px; font-weight: 700; color: var(--text-light); text-align: center; }
+        .lb-img { width: 40px; height: 40px; border-radius: 50%; background: #F3F4F6; margin: 0 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #9CA3AF; overflow: hidden; }
+        .lb-info { flex: 1; }
+        .lb-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .lb-sub { font-size: 11px; color: var(--text-light); }
+        .lb-score { font-weight: 700; color: #8B5CF6; font-size: 13px; }
+
+        /* REFER PAGE STYLES */
+        .refer-header-card { background: var(--g-purple); border-radius: var(--radius); padding: 30px 20px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3); }
+        .rh-title { font-size: 14px; opacity: 0.9; margin-bottom: 5px; }
+        .rh-amount { font-size: 36px; font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .rh-subtitle { font-size: 12px; opacity: 0.8; }
+        .ref-link-box { background: var(--white); border: 2px dashed var(--g-purple); border-radius: 12px; padding: 15px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; gap: 10px; }
+        .ref-link-text { font-family: monospace; font-size: 13px; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .ref-copy-btn { background: #8B5CF6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .team-list-header { font-size: 16px; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .team-count-badge { background: #EDE9FE; color: #8B5CF6; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+        .team-item { background: var(--white); padding: 12px; border-radius: 12px; display: flex; align-items: center; margin-bottom: 10px; box-shadow: var(--card-shadow); }
+        .team-img { width: 40px; height: 40px; border-radius: 50%; background: #E5E7EB; margin-right: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .team-info { flex: 1; }
+        .team-name { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .team-date { font-size: 11px; color: var(--text-light); }
+        .team-status { font-size: 11px; font-weight: 700; color: #10B981; }
+        .btn-claim-ref { background: #F59E0B; color: white; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 13px; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); transition: 0.2s; width: 80%; }
+        .btn-claim-ref:active { transform: scale(0.95); }
+        .btn-claim-ref:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+
+        /* OTHER STYLES */
+        .checkin-section { background: var(--white); border-radius: var(--radius); padding: 15px; margin-bottom: 20px; box-shadow: var(--card-shadow); transition: 0.3s; }
+        .cs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cs-title { font-weight: 700; font-size: 15px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+        .cs-sub { font-size: 11px; color: var(--text-light); }
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .day-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .day-circle { width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: 0.3s; }
+        .day-icon { font-size: 12px; margin-bottom: 2px; color: #9CA3AF; }
+        .day-val { font-size: 9px; font-weight: 700; color: var(--text-light); line-height: 1; }
+        .day-label { font-size: 10px; font-weight: 500; color: var(--text-light); }
+        .day-wrapper.claimed .day-circle { background: #D1FAE5; color: #059669; transform: scale(1); }
+        .day-wrapper.today .day-circle { background: var(--g-orange); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4); transform: scale(1.1); border: 2px solid white; z-index: 5; }
+        .day-wrapper.today .day-icon { color: white; font-size: 14px; animation: bounce 2s infinite; }
+        .day-wrapper.today .day-val { color: white; font-weight: 800; }
+        .day-wrapper.locked .day-circle { opacity: 0.7; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-3px);} 60% {transform: translateY(-1.5px);} }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .menu-item { background: var(--white); padding: 15px 5px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: var(--card-shadow); cursor: pointer; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); }
+        .menu-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
+        .menu-text { font-size: 12px; font-weight: 600; color: var(--text-light); text-align: center; }
+
+        .premium-banner { background: var(--premium-bg); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: var(--radius); padding: 20px; position: relative; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; }
+        .pb-content { z-index: 2; color: #FFD700; }
+        .pb-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .pb-sub { font-size: 11px; color: #e0e0e0; opacity: 0.8; max-width: 180px; line-height: 1.4; }
+        .pb-btn { background: var(--gold-gradient); color: #1a1a1a; padding: 10px 22px; border-radius: 50px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3); border: none; z-index: 2; transition: 0.2s; text-transform: uppercase; animation: pulseGold 2s infinite; }
+        .pb-btn:active { transform: scale(0.95); }
+        .pb-decor { position: absolute; right: -25px; top: -25px; font-size: 110px; color: rgba(255, 215, 0, 0.08); transform: rotate(15deg); z-index: 1; pointer-events: none; }
+        @keyframes pulseGold { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .feature-card { padding: 15px; border-radius: 16px; color: white; position: relative; overflow: hidden; height: 100px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+        .fc-blue { background: var(--g-blue); }
+        .fc-pink { background: var(--g-pink); }
+        .fc-title { font-size: 16px; font-weight: 700; z-index: 2; }
+        .fc-sub { font-size: 11px; opacity: 0.9; z-index: 2; margin-top: 2px; }
+        .fc-icon { position: absolute; right: -10px; bottom: -10px; font-size: 50px; opacity: 0.2; transform: rotate(-15deg); }
+
+        .refer-card { background: var(--g-dark); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); color: white; position: relative; overflow: hidden; min-height: 90px; }
+        .rc-decor { position: absolute; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; right: -30px; top: -50px; pointer-events: none; }
+        .rc-info { z-index: 2; }
+        .rc-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .rc-sub { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+        .rc-copy-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; backdrop-filter: blur(5px); z-index: 2; transition: 0.2s; }
+        .rc-code { font-family: monospace; font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #FCD34D; }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); height: 75px; display: none; justify-content: space-around; align-items: center; border-top: 1px solid var(--border-color); z-index: 100; transition: 0.3s; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #9CA3AF; font-size: 10px; font-weight: 500; width: 60px; cursor: pointer; }
+        .nav-btn i { font-size: 20px; transition: 0.2s; }
+        .nav-btn.active { color: #8B5CF6; }
+        .nav-btn.active i { transform: translateY(-3px); }
+        .fab { width: 55px; height: 55px; background: var(--text-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 4px solid var(--bg-body); transition: 0.3s; }
+
+        /* ADS PAGE LIST STYLES */
+        .ad-stats-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .ad-stat-box { flex: 1; background: var(--white); padding: 15px; border-radius: 16px; text-align: center; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
+        .ad-stat-val { font-size: 24px; font-weight: 800; color: var(--text-main); }
+        .ad-stat-label { font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; margin-top: 5px; }
+
+        .ad-list-wrapper { padding-bottom: 20px; }
+        .ad-task-item { background: var(--white); padding: 15px; border-radius: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); transition: 0.3s; }
+        .ad-task-left { display: flex; align-items: center; gap: 12px; }
+        .ad-task-icon { width: 45px; height: 45px; background: #FEF2F2; color: #EF4444; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .ad-task-info { display: flex; flex-direction: column; }
+        .ad-task-title { font-weight: 700; font-size: 14px; color: var(--text-main); }
+        .ad-task-reward { font-size: 11px; color: #10B981; font-weight: 600; background: #D1FAE5; padding: 2px 6px; border-radius: 4px; width: fit-content; margin-top: 3px; }
+
+        .btn-visit { background: var(--g-blue); color: white; border: none; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+        .btn-visit:active { transform: scale(0.95); }
+        .btn-timer { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; box-shadow: none; cursor: not-allowed; width: 80px; display: flex; justify-content: center; }
+
+        .ads-completed-card { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-top: 20px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); animation: fadeUp 0.5s ease; }
+        .acc-icon { font-size: 50px; margin-bottom: 15px; opacity: 0.9; }
+        .acc-title { font-size: 20px; font-weight: 800; margin-bottom: 5px; }
+        .acc-sub { font-size: 13px; opacity: 0.9; line-height: 1.5; }
+        
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .list-title { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .list-item { background: var(--white); padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); }
+        .li-img { width: 40px; height: 40px; border-radius: 8px; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text-main); }
+        .li-info { flex: 1; }
+        .li-title { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .li-sub { font-size: 11px; color: var(--text-light); }
+        .li-action { background: #EFF6FF; color: #2563EB; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; border:none; }
+
+        .spin-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+        .spin-overlay.open { display: flex; opacity: 1; }
+        .spin-modal { width: 90%; max-width: 360px; background: var(--black-gradient); border-radius: 24px; padding: 20px; border: 2px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+        .spin-overlay.open .spin-modal { transform: scale(1); }
+        .spin-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .spin-header h2 { font-size: 24px; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .spin-header p { color: #888; font-size: 12px; margin-bottom: 20px; }
+        
+        .spin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; padding: 10px; background: #151515; border-radius: 16px; border: 1px solid #333; }
+        .spin-box { aspect-ratio: 1/1; background: #222; border: 1px solid #444; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
+        .spin-box.active { background: var(--gold-gradient); color: #000; transform: scale(1.05); box-shadow: 0 0 15px #FFD700; z-index: 2; border: 1px solid white; }
+        .spin-btn { width: 100%; height: 100%; background: var(--gold-gradient); border-radius: 12px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: 0 5px 15px rgba(255,215,0,0.3); }
+        .spin-btn-container { grid-column: 2; grid-row: 2; width: 100%; height: 100%; }
+        .spins-left { background: rgba(30, 30, 30, 0.9); color: #FFD700; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 700; border: 1px solid #FFD700; display: inline-block; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        
+        .win-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); border-radius: 22px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .win-modal.show { display: flex; animation: popIn 0.4s ease; }
+        .win-amount { font-size: 32px; font-weight: 800; color: white; margin-bottom: 5px; }
+        .claim-btn { background: var(--gold-gradient); border: none; padding: 12px 35px; border-radius: 25px; font-weight: 800; color: #000; cursor: pointer; text-transform: uppercase; }
+
+        .scratch-area-container { width: 250px; height: 250px; margin: 20px auto; position: relative; border-radius: 16px; overflow: hidden; border: 2px solid #444; }
+        .scratch-underlay { width: 100%; height: 100%; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; }
+        .scratch-value { font-size: 40px; font-weight: 800; background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        canvas#scratchCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; cursor: crosshair; touch-action: none; }
+        
+        .scratch-limits-box { background: #111; border: 1px solid #F59E0B; border-radius: 12px; padding: 8px 15px; margin-bottom: 10px; color: #FFD700; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+
+        #convertOverlay .spin-modal, #withdrawOverlay .spin-modal, #premiumOverlay .spin-modal { background: var(--white) !important; border: none !important; color: var(--text-main) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 30px 20px; max-width: 380px; }
+        #convertOverlay .spin-close, #withdrawOverlay .spin-close, #premiumOverlay .spin-close { background: var(--border-color); color: var(--text-main); }
+        #convertOverlay .spin-header h2, #withdrawOverlay .spin-header h2 { background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset; color: var(--text-main); font-size: 22px; }
+        
+        .conv-icon-circle { width: 60px; height: 60px; background: #FEF3C7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
+        .conv-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 20px; display: block; }
+        .conv-input-group { text-align: left; margin-bottom: 15px; }
+        .conv-label { font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: block; }
+        .conv-field { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-main); font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        input.conv-input-clean { border: none; background: transparent; outline: none; width: 100%; font-weight: 600; font-size: 14px; color: var(--text-main); }
+        .conv-btn-yellow { background: #F59E0B; color: white; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+        .vat-box { background: #FFF5F5; border: 1px solid #FECACA; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 12px; color: #991B1B; display: flex; justify-content: space-between; }
+        .vat-total { font-weight: 700; color: #DC2626; }
+
+        .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        .plan-card { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 15px 10px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; }
+        .plan-card:active { transform: scale(0.98); }
+        .plan-card.selected { border-color: #F59E0B; background: #FFFBEB; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); }
+        .plan-duration { font-size: 13px; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 4px; }
+        .plan-price { font-size: 18px; font-weight: 800; color: #D97706; }
+        .plan-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #EF4444; color: white; font-size: 9px; padding: 3px 8px; border-radius: 10px; font-weight: 700; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); white-space: nowrap; }
+        .plan-card.popular .plan-badge { display: block; }
+        
+        .btn-pay-bkash { background: linear-gradient(135deg, #E2136E 0%, #C2185B 100%); color: white; width: 100%; padding: 14px; border-radius: 50px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; margin-top: 10px; box-shadow: 0 6px 15px rgba(226, 19, 110, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .pay-info-box { background: #FFFBEB; border: 1px dashed #F59E0B; padding: 12px; border-radius: 12px; margin-bottom: 15px; text-align: left; }
+        .pay-label { font-size: 11px; color: #6B7280; font-weight: 600; display: block; margin-bottom: 4px; }
+        .admin-num-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border-radius: 8px; border: 1px solid #F3F4F6; font-weight: 700; color: #1F2937; font-family: monospace; font-size: 15px; }
+        .copy-btn { color: #F59E0B; cursor: pointer; padding: 4px; }
+        .pay-input { width: 100%; padding: 12px; border: 1px solid #E5E7EB; border-radius: 10px; background: #F9FAFB; margin-bottom: 10px; font-size: 13px; font-weight: 500; outline: none; transition: 0.2s; }
+        .pay-input:focus { border-color: #F59E0B; background: white; }
+
+        .profile-header { background: var(--g-blue); border-radius: 16px; padding: 15px; display: flex; align-items: center; justify-content: space-between; color: white; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); margin-bottom: 20px; margin-top: 5px; }
+        .ph-left { display: flex; align-items: center; gap: 12px; }
+        .ph-img { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; }
+        .ph-info { display: flex; flex-direction: column; }
+        .ph-name { font-size: 18px; font-weight: 700; line-height: 1.2; }
+        .ph-username { font-size: 13px; color: #FFD700; margin-bottom: 2px; font-weight: 600; }
+        .ph-id { font-size: 11px; opacity: 0.8; font-family: monospace; letter-spacing: 0.5px; }
+        
+        .ph-right { text-align: right; }
+        .ph-bal { font-size: 20px; font-weight: 800; color: #FFD700; }
+        .ph-bal-label { font-size: 10px; opacity: 0.8; }
+        .section-title { font-size: 12px; font-weight: 700; color: var(--text-light); text-transform: uppercase; margin: 15px 5px 8px 5px; letter-spacing: 0.5px; }
+        
+        .profile-item { background: var(--white); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .profile-item:active { transform: scale(0.98); border-color: var(--border-color); }
+        .pi-left { display: flex; align-items: center; gap: 12px; }
+        .pi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: #F3F4F6; }
+        .pi-icon.setting { color: #4B5563; }
+        .pi-icon.lang { color: #4F46E5; }
+        .pi-icon.gift { color: #EA580C; }
+        .pi-icon.trophy { color: #CA8A04; }
+        .pi-icon.tele { color: #0EA5E9; }
+        .pi-icon.proof { color: #16A34A; }
+        .pi-icon.supp { color: #D97706; }
+        .pi-icon.priv { color: #4B5563; }
+        .pi-icon.rate { color: #DB2777; }
+        
+        .pi-name { font-size: 13px; font-weight: 600; color: var(--text-main); }
+        .pi-arrow { font-size: 12px; color: #D1D5DB; }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2563EB; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+    </style>
+</head>
+<body>
+
+    <!-- AUTH SECTION (LOGIN/SIGNUP) -->
+    <div id="auth-section">
+        <!-- Login Form -->
+        <div id="login-form" class="auth-card">
+            <div class="auth-logo">
+                <i class="fa-solid fa-bolt"></i>
+                <div class="auth-title">Welcome Back!</div>
+                <div class="auth-sub">Log in to continue earning</div>
+            </div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Email Address</label>
+                <div class="auth-input-box">
+                    <i class="fa-regular fa-envelope auth-icon"></i>
+                    <input type="email" id="loginEmail" class="auth-input" placeholder="Enter your email">
+                </div>
+            </div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Password</label>
+                <div class="auth-input-box">
+                    <i class="fa-solid fa-lock auth-icon"></i>
+                    <input type="password" id="loginPass" class="auth-input" placeholder="••••••••">
+                </div>
+            </div>
+            
+            <button class="auth-btn" id="btnLoginBtn" onclick="processLogin()">LOG IN</button>
+            
+            <div class="auth-footer">
+                Don't have an account? <span class="auth-link" onclick="toggleAuthMode('signup')">Sign Up</span>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-form" class="auth-card hidden">
+            <div class="auth-logo">
+                <i class="fa-solid fa-user-plus"></i>
+                <div class="auth-title">Create Account</div>
+                <div class="auth-sub">Join CreatorCash Pro today</div>
+            </div>
+
+            <div class="grid-2-input">
+                <div class="auth-input-group">
+                    <label class="auth-label">First Name</label>
+                    <input type="text" id="regFName" class="auth-input" style="padding-left:15px;" placeholder="First Name">
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label">Last Name</label>
+                    <input type="text" id="regLName" class="auth-input" style="padding-left:15px;" placeholder="Last Name">
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Mobile Number</label>
+                <div class="auth-input-box">
+                    <i class="fa-solid fa-phone auth-icon"></i>
+                    <input type="tel" id="regMobile" class="auth-input" placeholder="017XXXXXXXX">
+                </div>
+            </div>
+            
+            <div class="auth-input-group">
+                <label class="auth-label">Email Address</label>
+                <div class="auth-input-box">
+                    <i class="fa-regular fa-envelope auth-icon"></i>
+                    <input type="email" id="regEmail" class="auth-input" placeholder="example@mail.com">
+                </div>
+            </div>
+            
+            <div class="grid-2-input">
+                <div class="auth-input-group">
+                    <label class="auth-label">Password</label>
+                    <input type="password" id="regPass" class="auth-input" style="padding-left:15px;" placeholder="Password">
+                </div>
+                <div class="auth-input-group">
+                    <label class="auth-label">Confirm</label>
+                    <input type="password" id="regPassConfirm" class="auth-input" style="padding-left:15px;" placeholder="Confirm">
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <label class="auth-label">Gender</label>
+                <div class="gender-options">
+                    <div class="gender-opt active" id="genMale" onclick="selectGender('Male')">Male</div>
+                    <div class="gender-opt" id="genFemale" onclick="selectGender('Female')">Female</div>
+                </div>
+            </div>
+            
+            <button class="auth-btn" id="btnSignupBtn" onclick="processSignup()">SIGN UP</button>
+            
+            <div class="auth-footer">
+                Already have an account? <span class="auth-link" onclick="toggleAuthMode('login')">Log In</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header" id="app-header">
+        <div class="brand">
+            <div class="logo-box">C</div>
+            <span>CreatorCash</span>
+            <!-- PREMIUM BADGE -->
+            <div class="premium-badge" id="premiumBadgeHeader">
+                <i class="fa-solid fa-crown"></i> PRO
+            </div>
+        </div>
+        <div class="points-pill">
+            <i class="fa-solid fa-coins" style="color: #F59E0B;"></i>
+            <span id="header-points">0</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container" id="main-container">
+
+        <!-- === PAGE 1: HOME === -->
+        <div id="home" class="page active">
+            <div class="card balance-card">
+                <div class="bal-row">
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="bal-label" data-translate="total_balance">Total Balance</span>
+                        <div class="bal-amount" id="balance-dollar">$0.00</div>
+                    </div>
+                    <div class="action-btn btn-withdraw" onclick="switchTab('wallet')" data-translate="withdraw">Withdraw</div>
+                </div>
+                <div style="width:100%; height:1px; background:rgba(255,255,255,0.1);"></div>
+                <div class="bal-row">
+                    <div class="bal-coins-box">
+                        <i class="fa-solid fa-coins" style="color: #FFD700;"></i>
+                        <span class="bal-coins-val" id="balance-coins">0</span>
+                    </div>
+                    <div class="action-btn btn-convert" onclick="openConvertModal()"><i class="fa-solid fa-arrows-rotate"></i> <span data-translate="convert">Convert</span></div>
+                </div>
+            </div>
+
+            <div class="checkin-section">
+                <div class="cs-header">
+                    <div class="cs-title"><i class="fa-solid fa-calendar-check" style="color:#F59E0B;"></i> <span data-translate="daily_checkin">Daily Check-in</span></div>
+                    <div class="cs-sub" id="streak-display">Streak: 0 Days</div>
+                </div>
+                <div class="days-grid" id="daily-checkin-grid">
+                    <div class="day-wrapper" id="day-0" onclick="attemptCheckin(0)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-0">...</span></div>
+                        <span class="day-label">Day 1</span>
+                    </div>
+                    <div class="day-wrapper" id="day-1" onclick="attemptCheckin(1)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-1">...</span></div>
+                        <span class="day-label">Day 2</span>
+                    </div>
+                    <div class="day-wrapper" id="day-2" onclick="attemptCheckin(2)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-2">...</span></div>
+                        <span class="day-label">Day 3</span>
+                    </div>
+                    <div class="day-wrapper" id="day-3" onclick="attemptCheckin(3)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-3">...</span></div>
+                        <span class="day-label">Day 4</span>
+                    </div>
+                    <div class="day-wrapper" id="day-4" onclick="attemptCheckin(4)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-4">...</span></div>
+                        <span class="day-label">Day 5</span>
+                    </div>
+                    <div class="day-wrapper" id="day-5" onclick="attemptCheckin(5)">
+                        <div class="day-circle"><i class="fa-solid fa-gift day-icon"></i><span class="day-val" id="val-5">...</span></div>
+                        <span class="day-label">Day 6</span>
+                    </div>
+                    <div class="day-wrapper" id="day-6" onclick="attemptCheckin(6)">
+                        <div class="day-circle"><i class="fa-solid fa-trophy day-icon" style="color:#F59E0B;"></i><span class="day-val" id="val-6">...</span></div>
+                        <span class="day-label">Day 7</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-item" onclick="openSpinModal()">
+                    <div class="menu-icon" style="background: var(--g-blue);"><i class="fa-solid fa-spinner"></i></div>
+                    <span class="menu-text" data-translate="spin">Spin</span>
+                </div>
+                <div class="menu-item" onclick="openScratchModal()">
+                    <div class="menu-icon" style="background: var(--g-pink);"><i class="fa-solid fa-ticket"></i></div>
+                    <span class="menu-text" data-translate="scratch">Scratch</span>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon" style="background: #10B981;"><i class="fa-solid fa-gamepad"></i></div>
+                    <span class="menu-text" data-translate="games">Games</span>
+                </div>
+            </div>
+
+            <div class="premium-banner">
+                <div class="pb-content">
+                    <div class="pb-title"><i class="fa-solid fa-crown" style="color:#FFD700;"></i> <span data-translate="premium_club">Premium Club</span></div>
+                    <div class="pb-sub">Unlock 2x Rewards, No Ads & VIP Badge!</div>
+                </div>
+                <button class="pb-btn" onclick="openPremiumModal()">BUY NOW</button>
+                <i class="fa-solid fa-gem pb-decor"></i>
+            </div>
+
+            <div class="grid-2">
+                <div class="feature-card fc-blue" onclick="switchTab('tasks')">
+                    <div class="fc-title" data-translate="daily_task">Daily Task</div>
+                    <div class="fc-sub">Check Available</div>
+                    <i class="fa-solid fa-list-check fc-icon"></i>
+                </div>
+                <div class="feature-card fc-pink" onclick="switchTab('ads-page')">
+                    <div class="fc-title" data-translate="watch_ads">Watch Ads</div>
+                    <div class="fc-sub">Earn +$0.50</div>
+                    <i class="fa-solid fa-play fc-icon"></i>
+                </div>
+            </div>
+
+            <div class="refer-card" onclick="switchTab('refer-page')">
+                <div class="rc-decor"></div>
+                <div class="rc-info">
+                    <div class="rc-title"><i class="fa-solid fa-gift" style="color:#FCD34D;"></i> <span data-translate="refer_earn">Refer & Earn</span></div>
+                    <div class="rc-sub">Invite friends, Get Rewards</div>
+                </div>
+                <div class="rc-copy-box">
+                    <span class="rc-code">OPEN</span>
+                    <i class="fa-regular fa-arrow-right rc-icon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- === SHOP PAGE === -->
+        <div id="shop-page" class="page" style="height:100%;">
+            <div id="shop-loader" style="text-align:center; padding:50px; color:#ccc;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading Shop...
+            </div>
+            <div id="shop-container" style="width:100%; height:100%; border:none; display:none;">
+                <!-- HTML Content will be injected here via iframe or directly -->
+            </div>
+        </div>
+
+        <!-- === PRIVACY POLICY PAGE (UPDATED) === -->
+        <div id="privacy-page" class="page" style="height:100%;">
+            <div id="privacy-loader" style="text-align:center; padding:50px; color:#ccc;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading Policy...
+            </div>
+            <div id="privacy-container" style="width:100%; height:100%; border:none; display:none;">
+                <!-- HTML Content from Firebase Config 2 -->
+            </div>
+        </div>
+
+        <!-- === RATE US POLICY PAGE (UPDATED) === -->
+        <div id="rate-page" class="page" style="height:100%;">
+            <div id="rate-loader" style="text-align:center; padding:50px; color:#ccc;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Loading Rate Policy...
+            </div>
+            <div id="rate-container" style="width:100%; height:100%; border:none; display:none;">
+                <!-- HTML Content from Firebase Config 2 -->
+            </div>
+        </div>
+
+        <!-- === REFER PAGE === -->
+        <div id="refer-page" class="page">
+            <div class="list-header">
+                <div class="list-title"><i class="fa-solid fa-arrow-left" onclick="switchTab('home')" style="margin-right:10px; cursor:pointer;"></i> Referral Program</div>
+            </div>
+
+            <div class="refer-header-card">
+                <div class="rh-title">Available Refer Balance</div>
+                <div class="rh-amount">
+                    <i class="fa-solid fa-coins" style="color:#FFD700; font-size:24px;"></i>
+                    <span id="totalReferEarnings">0</span>
+                </div>
+                <div class="rh-subtitle" id="ref-reward-info">Loading Reward Rate...</div>
+                
+                <button class="btn-claim-ref" id="btnClaimRefRewards" onclick="claimReferralEarnings()">
+                    CLAIM & MOVE TO WALLET
+                </button>
+            </div>
+
+            <div class="section-title">Your Unique Link</div>
+            <div class="ref-link-box">
+                <div class="ref-link-text" id="myReferLink">Loading...</div>
+                <button class="ref-copy-btn" onclick="copyMyReferLink()"><i class="fa-solid fa-copy"></i> Copy</button>
+            </div>
+
+            <div class="team-list-header">
+                <span>My Team</span>
+                <span class="team-count-badge" id="referCount">0 Members</span>
+            </div>
+
+            <div id="team-list-container">
+                <div style="text-align:center; padding:30px; color:var(--text-light); font-size:13px;">
+                    <i class="fa-solid fa-spinner fa-spin" style="margin-bottom:8px;"></i><br>Loading Team...
+                </div>
+            </div>
+        </div>
+        
+        <!-- === LEADERBOARD PAGE === -->
+        <div id="leaderboard-page" class="page">
+            <div class="list-header">
+                <div class="list-title"><i class="fa-solid fa-arrow-left" onclick="switchTab('profile')" style="margin-right:10px; cursor:pointer;"></i> Top Referrals</div>
+            </div>
+            
+            <div id="lb-podium" class="podium-container">
+                <i class="fa-solid fa-spinner fa-spin" style="color:#ccc; font-size:20px;"></i>
+            </div>
+            
+            <div class="list-header">
+                <div class="list-title">Top 100 Leaders</div>
+            </div>
+            
+            <div id="lb-list" class="lb-list">
+                <!-- List items will be here -->
+            </div>
+        </div>
+
+        <!-- === ADS PAGE === -->
+        <div id="ads-page" class="page">
+            <div class="list-header">
+                <div class="list-title">
+                    <i class="fa-solid fa-arrow-left" onclick="switchTab('home')" style="margin-right:10px; cursor:pointer;"></i> 
+                    Daily Ads Work
+                </div>
+                <div onclick="initAdsPage()" style="font-size:12px; color:var(--g-blue); cursor:pointer;">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </div>
+            </div>
+
+            <div class="ad-stats-container">
+                <div class="ad-stat-box">
+                    <div class="ad-stat-val" id="adsLimitDisplay">0</div>
+                    <div class="ad-stat-label">Total Limit</div>
+                </div>
+                <div class="ad-stat-box">
+                    <div class="ad-stat-val" id="adsDoneDisplay">0</div>
+                    <div class="ad-stat-label">Completed</div>
+                </div>
+                <div class="ad-stat-box">
+                    <div class="ad-stat-val" id="adsRewardDisplay">0</div>
+                    <div class="ad-stat-label">Per Ad</div>
+                </div>
+            </div>
+
+            <div id="ad-list-wrapper" class="ad-list-wrapper">
+                <div style="text-align:center; padding:50px; color:#ccc;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Loading Tasks...
+                </div>
+            </div>
+
+            <div id="ads-completed-msg" class="ads-completed-card" style="display:none;">
+                <i class="fa-solid fa-circle-check acc-icon"></i>
+                <div class="acc-title">Great Job, Champion!</div>
+                <div class="acc-sub">
+                    You've completed all tasks for today.<br>
+                    Come back tomorrow for more earnings!
+                </div>
+            </div>
+        </div>
+
+        <!-- === TASKS PAGE === -->
+        <div id="tasks" class="page">
+            <div class="list-header">
+                <div class="list-title" data-translate="tasks">Active Tasks</div>
+                <div onclick="window.loadFirebaseTasks()" style="font-size:12px; color:var(--g-blue); cursor:pointer;">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </div>
+            </div>
+            <div id="firebase-task-container">
+                <div style="text-align:center; padding:50px 20px; color:var(--text-light);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:30px; margin-bottom:10px;"></i>
+                    <p>Connecting to Server...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- === WALLET PAGE === -->
+        <div id="wallet" class="page">
+            <div class="card balance-card" style="background: var(--g-blue); height: 120px; justify-content:center; align-items:flex-start;">
+                <div class="bal-label" style="color: white;" data-translate="withdrawable">Withdrawable Amount</div>
+                <div class="bal-amount" id="wallet-balance">$0.00</div>
+                <div style="font-size:12px; opacity:0.8;">Secure & Fast Transfer</div>
+            </div>
+            <div class="list-header"><div class="list-title">Withdraw Method</div></div>
+            <div class="menu-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="menu-item" onclick="openWithdrawModal('Nagad')">
+                    <div class="menu-icon" style="background: #E11D48;"><i class="fa-solid fa-building-columns"></i></div>
+                    <span class="menu-text">Nagad</span>
+                </div>
+                <div class="menu-item" onclick="openWithdrawModal('Bkash')">
+                    <div class="menu-icon" style="background: #D97706;"><i class="fa-solid fa-wallet"></i></div>
+                    <span class="menu-text">Bkash</span>
+                </div>
+                <div class="menu-item" onclick="openWithdrawModal('Mobile Recharge')">
+                    <div class="menu-icon" style="background: #10B981;"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <span class="menu-text">Recharge</span>
+                </div>
+            </div>
+            
+            <div class="list-header"><div class="list-title">Recent History</div></div>
+            <div id="withdraw-history-list" style="padding-bottom: 20px;">
+                <div style="text-align:center; padding:20px; color:#9CA3AF; font-size:12px;">Loading history...</div>
+            </div>
+        </div>
+
+        <!-- === PROFILE PAGE (UPDATED) === -->
+        <div id="profile" class="page">
+            <div class="profile-header">
+                <div class="ph-left">
+                    <div class="ph-img" id="user-avatar-container"><i class="fa-solid fa-user"></i></div>
+                    <div class="ph-info">
+                        <span class="ph-name" id="user-name">Loading...</span>
+                        <span class="ph-username" id="user-username">@User</span>
+                        <span class="ph-id" id="user-id">ID: ...</span>
+                    </div>
+                </div>
+                <div class="ph-right"><div class="ph-bal" id="profile-balance">$0.00</div><span class="ph-bal-label">Balance</span></div>
+            </div>
+            
+            <div class="sub-progress-card" id="subscriptionCard">
+                <div class="sp-header">
+                    <div class="sp-title"><i class="fa-solid fa-crown"></i> <span id="subPlanName">Premium Plan</span></div>
+                    <div class="sp-days-left" id="subDaysLeft">0 Days Left</div>
+                </div>
+                <div class="sp-bar-bg">
+                    <div class="sp-bar-fill" id="subProgressBar"></div>
+                </div>
+                <div class="sp-date" id="subExpiryDate">Expires: ...</div>
+            </div>
+
+            <div class="section-title" id="txt-settings">App Settings</div>
+            <div class="profile-item">
+                <div class="pi-left"><div class="pi-icon setting"><i class="fa-solid fa-moon"></i></div><span class="pi-name" id="txt-darkmode">Dark Mode</span></div>
+                <label class="switch"><input type="checkbox" id="darkModeSwitch" onchange="toggleDarkMode()"><span class="slider"></span></label>
+            </div>
+            <div class="profile-item">
+                <div class="pi-left"><div class="pi-icon lang"><i class="fa-solid fa-language"></i></div><span class="pi-name" id="txt-language" data-translate="language">Language (Bangla)</span></div>
+                <!-- ON = Bangla, OFF = English -->
+                <label class="switch"><input type="checkbox" id="langSwitch" checked onchange="toggleLanguage()"><span class="slider"></span></label>
+            </div>
+
+            <div class="section-title" id="txt-activity">My Activity</div>
+            
+            <!-- UPDATE: Ad Gated Navigation -->
+            <div class="profile-item" onclick="handleProfileNav('refer')">
+                <div class="pi-left"><div class="pi-icon gift"><i class="fa-solid fa-gift"></i></div><span class="pi-name" id="txt-refer" data-translate="refer_earn">Refer & Earn</span></div><i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+
+            <div class="profile-item" onclick="handleProfileNav('leaderboard')">
+                <div class="pi-left"><div class="pi-icon trophy"><i class="fa-solid fa-trophy"></i></div><span class="pi-name" id="txt-leaderboard">Leaderboard</span></div><i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+
+            <div class="section-title" id="txt-community">Community & Support</div>
+            
+            <div class="profile-item" onclick="handleProfileNav('channel')">
+                <div class="pi-left">
+                    <div class="pi-icon tele"><i class="fa-brands fa-telegram"></i></div>
+                    <span class="pi-name" id="txt-channel">Update Channel</span>
+                </div>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+            
+            <div class="profile-item" onclick="handleProfileNav('payment')">
+                <div class="pi-left">
+                    <div class="pi-icon proof"><i class="fa-solid fa-receipt"></i></div>
+                    <span class="pi-name" id="txt-payment">Payment Proofs</span>
+                </div>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+            
+            <div class="profile-item" onclick="handleProfileNav('support')">
+                <div class="pi-left">
+                    <div class="pi-icon supp"><i class="fa-solid fa-headset"></i></div>
+                    <span class="pi-name" id="txt-support">Support Center</span>
+                </div>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+
+            <div class="section-title" id="txt-info">App Info</div>
+            
+            <!-- UPDATED: Privacy Policy & Rate Us (HTML LOADED) -->
+            <div class="profile-item" onclick="switchTab('privacy-page')">
+                <div class="pi-left"><div class="pi-icon priv"><i class="fa-solid fa-shield-halved"></i></div><span class="pi-name" id="txt-privacy">Privacy Policy</span></div><i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+            <div class="profile-item" onclick="switchTab('rate-page')">
+                <div class="pi-left"><div class="pi-icon rate"><i class="fa-solid fa-star"></i></div><span class="pi-name" id="txt-rate">Rate Us</span></div><i class="fa-solid fa-chevron-right pi-arrow"></i>
+            </div>
+            
+            <div style="margin-top:20px; padding:0 5px;">
+                <button onclick="handleLogout()" style="width:100%; padding:15px; background:#EF4444; color:white; border:none; border-radius:12px; font-weight:700; font-size:14px; box-shadow:0 4px 10px rgba(239,68,68,0.3);">LOG OUT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <div class="bottom-nav" id="bottom-nav">
+        <div class="nav-btn active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i><span data-translate="home">Home</span></div>
+        <div class="nav-btn" onclick="switchTab('tasks', this)"><i class="fa-solid fa-layer-group"></i><span data-translate="tasks">Tasks</span></div>
+        <div class="fab" onclick="switchTab('shop-page', null)"><i class="fa-solid fa-store"></i></div>
+        <div class="nav-btn" onclick="switchTab('wallet', this)"><i class="fa-solid fa-wallet"></i><span data-translate="wallet">Wallet</span></div>
+        <div class="nav-btn" onclick="switchTab('profile', this)"><i class="fa-regular fa-user"></i><span data-translate="me">Me</span></div>
+    </div>
+
+    <!-- CONVERT MODAL -->
+    <div class="spin-overlay" id="convertOverlay">
+        <div class="spin-modal">
+            <div class="spin-close" onclick="closeConvertModal()"><i class="fa-solid fa-times"></i></div>
+            <div class="conv-icon-circle"><i class="fa-solid fa-arrow-right-arrow-left" style="color: #F59E0B; font-size: 24px;"></i></div>
+            <div class="spin-header"><h2>Convert Coins</h2><span class="conv-subtitle">1000 Coins = $0.01 USD</span></div>
+            <div class="conv-input-group"><label class="conv-label">Available</label><div class="conv-field"><span id="convAvailable">0</span><i class="fa-solid fa-coins" style="color: #F59E0B;"></i></div></div>
+            <div class="conv-input-group"><label class="conv-label">Coins to Convert</label><div class="conv-field"><span>Min: 1000</span></div></div>
+            <div style="background:#F3F4F6; padding:10px; border-radius:10px; margin-bottom:15px; font-size:12px; color:#555;">You will receive <b style="color:#059669; font-size:14px;" id="convReceive">$0.00</b></div>
+            <!-- UPDATE: Added Ad Logic to Convert -->
+            <button class="conv-btn-yellow" onclick="processConversionWithAd()">Convert Now</button>
+        </div>
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="spin-overlay" id="withdrawOverlay">
+        <div class="spin-modal">
+            <div class="spin-close" onclick="closeWithdrawModal()"><i class="fa-solid fa-times"></i></div>
+            <div class="conv-icon-circle" style="background:#DBEAFE;"><i class="fa-solid fa-money-bill-transfer" style="color: #2563EB; font-size: 24px;"></i></div>
+            <div class="spin-header"><h2 id="withdrawTitle">Bkash Withdraw</h2><span class="conv-subtitle" id="withdrawSubtitle">Minimum: $5.00</span></div>
+            <div class="conv-input-group"><label class="conv-label">Payment Number</label><div class="conv-field"><input type="tel" placeholder="017XXXXXXXX" class="conv-input-clean" id="withdrawNum"><i class="fa-solid fa-phone" style="color: #9CA3AF;"></i></div></div>
+            <div class="conv-input-group"><label class="conv-label">Withdraw Amount ($)</label><div class="conv-field"><input type="number" placeholder="0.00" class="conv-input-clean" id="withdrawAmount" oninput="updateWithdrawCalc()"><span style="font-weight:700; color:#374151;">USD</span></div></div>
+            <div class="vat-box"><span>Fee (<span id="vatPercentDisplay">0</span>%): <span id="vatFee">$0.00</span></span><span>Total Deducted: <span class="vat-total" id="vatTotal">$0.00</span></span></div>
+            <!-- UPDATE: Added Ad Logic to Withdraw -->
+            <button class="conv-btn-yellow" onclick="submitWithdrawWithAd()">CONFIRM WITHDRAW</button>
+        </div>
+    </div>
+
+    <!-- PREMIUM PLAN MODAL -->
+    <div class="spin-overlay" id="premiumOverlay">
+        <div class="spin-modal" style="max-height: 90vh; overflow-y: auto;">
+            <div class="spin-close" onclick="closePremiumModal()"><i class="fa-solid fa-times"></i></div>
+            
+            <div class="spin-header">
+                <h2 style="background: linear-gradient(45deg, #F59E0B, #D97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px;">VIP Membership</h2>
+                <p style="color:#666;">Select a plan & pay via Bkash</p>
+            </div>
+
+            <div class="plan-grid">
+                <div class="plan-card" onclick="selectPlan(this, '50', '1 Week')">
+                    <span class="plan-duration">1 Week</span>
+                    <div class="plan-price">৳50</div>
+                </div>
+                <div class="plan-card" onclick="selectPlan(this, '120', '15 Days')">
+                    <span class="plan-duration">15 Days</span>
+                    <div class="plan-price">৳120</div>
+                </div>
+                <div class="plan-card popular selected" onclick="selectPlan(this, '200', '1 Month')">
+                    <span class="plan-badge">POPULAR</span>
+                    <span class="plan-duration">1 Month</span>
+                    <div class="plan-price">৳200</div>
+                </div>
+                <div class="plan-card" onclick="selectPlan(this, '450', '3 Months')">
+                    <span class="plan-duration">3 Months</span>
+                    <div class="plan-price">৳450</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <div class="pay-info-box">
+                    <span class="pay-label">Payment Number (Bkash/Nagad Send Money)</span>
+                    <div class="admin-num-row">
+                        <span id="adminWalletNum">01909902319</span>
+                        <i class="fa-regular fa-copy copy-btn" onclick="copyAdminNum()"></i>
+                    </div>
+                    <div style="font-size:10px; color:#666; margin-top:5px;">* Send Money to this number first.</div>
+                </div>
+
+                <div style="text-align: left;">
+                    <label class="pay-label">Payment Sender Number</label>
+                    <input type="number" id="paySenderNum" class="pay-input" placeholder="01XXXXXXXXX">
+                    
+                    <label class="pay-label">Transaction ID (TrxID)</label>
+                    <input type="text" id="payTrxId" class="pay-input" placeholder="e.g. 9G7HA...">
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:13px; font-weight:700;">
+                <span>Plan: <span id="selectedPlanName" style="color:#F59E0B;">1 Month</span></span>
+                <span>Total: <span id="selectedPlanPrice" style="color:#D97706;">৳200</span></span>
+            </div>
+
+            <button class="btn-pay-bkash" onclick="submitPremiumRequest()">
+                <i class="fa-solid fa-check-circle"></i> VERIFY PAYMENT
+            </button>
+        </div>
+    </div>
+
+    <!-- SPIN MODAL (UPDATED IDS FOR LOGIC) -->
+    <div class="spin-overlay" id="spinOverlay">
+        <div class="spin-modal">
+            <div class="spin-close" onclick="closeSpinModal()"><i class="fa-solid fa-times"></i></div>
+            <div class="spin-header"><h2>Lucky Spin</h2><p>Win Exclusive Gold Rewards!</p></div>
+            <div class="spin-grid">
+                <!-- IDs updated to 0-7 for JS Logic -->
+                <div class="spin-box" id="box-0"><i class="fa-solid fa-coins"></i><span>10</span></div>
+                <div class="spin-box" id="box-1"><i class="fa-solid fa-coins"></i><span>20</span></div>
+                <div class="spin-box" id="box-2"><i class="fa-solid fa-coins"></i><span>50</span></div>
+                
+                <div class="spin-box" id="box-7"><i class="fa-solid fa-coins"></i><span>5</span></div>
+                <div class="spin-btn-container"><button class="spin-btn" id="spinBtn" onclick="startSpin()">SPIN</button></div>
+                <div class="spin-box" id="box-3"><i class="fa-solid fa-coins"></i><span>15</span></div>
+                
+                <div class="spin-box" id="box-6"><i class="fa-solid fa-coins"></i><span>10</span></div>
+                <div class="spin-box" id="box-5"><i class="fa-solid fa-coins"></i><span>500</span></div>
+                <div class="spin-box" id="box-4"><i class="fa-solid fa-coins"></i><span>999</span></div>
+            </div>
+            <div class="spins-left">Spins Left: <span id="spinCount">Loading...</span></div>
+            <!-- UPDATE: Added Ad Logic to Claim -->
+            <div class="win-modal" id="winModal">
+                <i class="fa-solid fa-crown win-icon"></i><div class="win-amount" id="winAmount">+20</div><div class="win-text">Coins Added to Wallet</div>
+                <button class="claim-btn" onclick="claimSpinReward()">Claim Bonus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRATCH MODAL -->
+    <div class="spin-overlay" id="scratchOverlay">
+        <div class="spin-modal">
+            <div class="spin-close" onclick="closeScratchModal()"><i class="fa-solid fa-times"></i></div>
+            <div class="spin-header"><h2>Magic Scratch</h2><p>Touch & Rub to Reveal!</p></div>
+            
+            <div class="scratch-limits-box">
+                <i class="fa-solid fa-ticket"></i>
+                <span id="scratchCountDisplay">Limit: Loading...</span>
+            </div>
+            
+            <div class="scratch-area-container">
+                <div class="scratch-underlay"><i class="fa-solid fa-gift" style="font-size:30px; color: gold; margin-bottom:10px;"></i><div class="scratch-value" id="scratchValue">+100</div><div style="font-size:10px; color:#666;">COINS</div></div>
+                <canvas id="scratchCanvas"></canvas>
+            </div>
+            <!-- UPDATE: Added Ad Logic to Claim -->
+            <button class="claim-btn" id="claimScratchBtn" style="display:none; margin-top:15px; width:100%;" onclick="claimScratchWithAd()">CLAIM REWARD</button>
+        </div>
+    </div>
+
+    <!-- CORE JS LOGIC -->
+    <script>
+        const config = {
+            MONETAG_ZONE_ID: '10148511', 
+            REWARD: 15,
+            BOT_USERNAME: 'creatorcashpro_bot', 
+            REFERRAL_REWARD_COINS: 500,
+            REFERRAL_REWARD_DOLLAR: 0.10
+        };
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyDGCp7zd91CAKYWJ2Js_07vKMUwToMA4-8",
+          authDomain: "creator--cash-pro.firebaseapp.com",
+          databaseURL: "https://creator--cash-pro-default-rtdb.firebaseio.com",
+          projectId: "creator--cash-pro",
+          storageBucket: "creator--cash-pro.firebasestorage.app",
+          messagingSenderId: "357088567728",
+          appId: "1:357088567728:web:5f6554043a5c5ef991b675",
+          measurementId: "G-2NCSM807ZS"
+        };
+
+        // === FIREBASE CONFIG 2 FOR SHOP (FIXED) ===
+        const shopFirebaseConfig = {
+          apiKey: "AIzaSyA3mev9Mkce11cYFJcKFUv6GrLRSO3k26A",
+          authDomain: "shop-29371.firebaseapp.com",
+          databaseURL: "https://shop-29371-default-rtdb.firebaseio.com",
+          projectId: "shop-29371",
+          storageBucket: "shop-29371.firebasestorage.app",
+          messagingSenderId: "425305877888",
+          appId: "1:425305877888:web:90338fbadae28516602565",
+          measurementId: "G-GP2ZKPGPW8"
+        };
+
+        let db, auth;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+            auth = firebase.auth();
+        } catch(e) { console.error("Firebase Init Error", e); }
+
+        // === INITIALIZE SECOND APP FOR SHOP (FIXED) ===
+        let shopApp, shopDb;
+        try {
+            // Using the compat SDK syntax for secondary app initialization
+            shopApp = firebase.initializeApp(shopFirebaseConfig, "ShopApp");
+            shopDb = shopApp.database();
+            console.log("Shop Firebase Config 2 Initialized");
+        } catch(e) { console.error("Shop Firebase Init Error", e); }
+
+
+        let totalCoins = 0;
+        let totalDollars = 0.00;
+        window.currentUserId = null; 
+        let userName = "Guest";
+        let userPhoto = null;
+        let selectedGender = "Male";
+        let isFirebaseUser = false;
+        let currentUserPlan = 'free'; 
+        let referralParam = null; 
+        let telegramId = null; 
+        let telegramUsername = null;
+        let globalReferralReward = 500;
+
+        // === GAME CONFIGURATION GLOBALS (UPDATED) ===
+        let gameConfig = {
+            spin: {
+                free_values: [5, 10, 5, 15, 5, 10, 5, 10], // Default
+                premium_values: [20, 30, 40, 50, 60, 70, 80, 100] // Default
+            },
+            scratch: {
+                free: { reward: 5, cooldown_hours: 24 },
+                premium_values: [20, 30, 40, 50]
+            }
+        };
+
+        let userSpinSequence = 0; // To track Premium cycle
+        let userScratchSequence = 0; // To track Premium cycle
+
+        // === LANGUAGE DICTIONARY ===
+        const translations = {
+            'total_balance': { en: 'Total Balance', bn: 'মোট ব্যালেন্স' },
+            'withdraw': { en: 'Withdraw', bn: 'উত্তোলন' },
+            'convert': { en: 'Convert', bn: 'পরিবর্তন' },
+            'daily_checkin': { en: 'Daily Check-in', bn: 'দৈনিক চেক-ইন' },
+            'spin': { en: 'Spin', bn: 'স্পিন' },
+            'scratch': { en: 'Scratch', bn: 'স্ক্র্যাচ' },
+            'games': { en: 'Games', bn: 'গেমস' },
+            'premium_club': { en: 'Premium Club', bn: 'প্রিমিয়াম ক্লাব' },
+            'daily_task': { en: 'Daily Task', bn: 'দৈনিক কাজ' },
+            'watch_ads': { en: 'Watch Ads', bn: 'বিজ্ঞাপন দেখুন' },
+            'refer_earn': { en: 'Refer & Earn', bn: 'রেফার করুন' },
+            'shop': { en: 'Creator Shop', bn: 'ক্রিয়েটর শপ' },
+            'home': { en: 'Home', bn: 'হোম' },
+            'tasks': { en: 'Tasks', bn: 'কাজ' },
+            'wallet': { en: 'Wallet', bn: 'ওয়ালেট' },
+            'me': { en: 'Me', bn: 'প্রোফাইল' },
+            'withdrawable': { en: 'Withdrawable Amount', bn: 'উত্তোলনযোগ্য পরিমাণ' },
+            'language': { en: 'Language (Bangla)', bn: 'ভাষা (বাংলা)' }
+        };
+
+        let dailyRewards = {
+             'free': [10, 20, 30, 40, 50, 60, 100],
+             'plan_1_week': [20, 40, 60, 80, 100, 120, 200],
+             'plan_15_days': [30, 60, 90, 120, 150, 180, 300],
+             'plan_1_month': [50, 100, 150, 200, 250, 300, 500],
+             'plan_3_months': [100, 200, 300, 400, 500, 600, 1000]
+        };
+
+        let spinLimits = { 'free': 10, 'plan_1_week': 20, 'plan_15_days': 30, 'plan_1_month': 50, 'plan_3_months': 100 };
+        let scratchLimits = { 'free': 5, 'plan_1_week': 10, 'plan_15_days': 15, 'plan_1_month': 20, 'plan_3_months': 50 };
+        let conversionRates = {
+            'free': { coins: 1000, cash: 0.01 },
+            'plan_1_week': { coins: 1000, cash: 0.01 },
+            'plan_15_days': { coins: 1000, cash: 0.01 },
+            'plan_1_month': { coins: 1000, cash: 0.01 },
+            'plan_3_months': { coins: 1000, cash: 0.01 }
+        };
+        let withdrawalSettings = {
+            'free': { bkash_min: 5, bkash_fee: 5, nagad_min: 5, nagad_fee: 5, recharge_min: 2, recharge_fee: 0 },
+            'plan_1_week': { bkash_min: 5, bkash_fee: 5, nagad_min: 5, nagad_fee: 5, recharge_min: 2, recharge_fee: 0 },
+            'plan_15_days': { bkash_min: 5, bkash_fee: 5, nagad_min: 5, nagad_fee: 5, recharge_min: 2, recharge_fee: 0 },
+            'plan_1_month': { bkash_min: 5, bkash_fee: 5, nagad_min: 5, nagad_fee: 5, recharge_min: 2, recharge_fee: 0 },
+            'plan_3_months': { bkash_min: 5, bkash_fee: 5, nagad_min: 5, nagad_fee: 5, recharge_min: 2, recharge_fee: 0 }
+        };
+
+        let dailySpins = 0; 
+        let maxDailySpins = 10; 
+        let isSpinning = false;
+        let pendingSpinReward = 0; 
+        let pendingSpinType = 'c';
+
+        let dailyScratches = 0; 
+        let maxDailyScratches = 5; 
+        let pendingScratchReward = 0;
+
+        function toggleAuthMode(mode) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            if (mode === 'signup') {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+            } else {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        }
+
+        function selectGender(gender) {
+            selectedGender = gender;
+            document.querySelectorAll('.gender-opt').forEach(el => el.classList.remove('active'));
+            if(gender === 'Male') document.getElementById('genMale').classList.add('active');
+            else document.getElementById('genFemale').classList.add('active');
+        }
+
+        function processLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLoginBtn');
+
+            if (!email || !pass) { alert("Please enter email and password!"); return; }
+
+            btn.innerText = "Logging in...";
+            btn.disabled = true;
+
+            auth.signInWithEmailAndPassword(email, pass)
+            .then((userCredential) => { isFirebaseUser = true; })
+            .catch((error) => {
+                btn.innerText = "LOG IN";
+                btn.disabled = false;
+                alert("Login Failed: " + error.message);
+            });
+        }
+
+        function processSignup() {
+            const fname = document.getElementById('regFName').value;
+            const lname = document.getElementById('regLName').value;
+            const mobile = document.getElementById('regMobile').value;
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPass').value;
+            const confirm = document.getElementById('regPassConfirm').value;
+            const btn = document.getElementById('btnSignupBtn');
+
+            if (!fname || !lname || !mobile || !email || !pass) { alert("Please fill all fields!"); return; }
+            if (pass !== confirm) { alert("Passwords do not match!"); return; }
+
+            btn.innerText = "Creating Account...";
+            btn.disabled = true;
+
+            auth.createUserWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const fullName = fname + " " + lname;
+                
+                db.ref('users/' + user.uid).set({
+                    firstName: fullName,
+                    email: email,
+                    mobile: mobile,
+                    gender: selectedGender,
+                    coins: 100, 
+                    balance: 0.00,
+                    plan: 'free',
+                    referrals_claimed_count: 0, 
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    if(referralParam) { processReferral(user.uid, referralParam, fullName); }
+                    alert("Account Created Successfully!");
+                    isFirebaseUser = true;
+                });
+            })
+            .catch((error) => {
+                btn.innerText = "SIGN UP";
+                btn.disabled = false;
+                alert("Signup Error: " + error.message);
+            });
+        }
+
+        function enterMainApp(name) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('app-header').style.display = 'flex';
+            document.getElementById('main-container').style.display = 'block';
+            document.getElementById('bottom-nav').style.display = 'flex';
+            if(name) userName = name;
+            initApp();
+        }
+
+        function handleLogout() {
+            if(isFirebaseUser) {
+                auth.signOut().then(() => { location.reload(); });
+            } else { location.reload(); }
+        }
+
+        window.addEventListener('load', () => {
+            checkTelegramLogin();
+            if(auth) {
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        isFirebaseUser = true;
+                        db.ref('users/' + user.uid).once('value').then(snapshot => {
+                            if(snapshot.exists()) {
+                                const data = snapshot.val();
+                                enterMainApp(data.firstName || "User");
+                                handleUserLogin({id: user.uid}); 
+                            } else { enterMainApp("User"); }
+                        });
+                    } 
+                });
+            }
+            // Initialize Language State
+            toggleLanguage();
+        });
+
+        function checkTelegramLogin() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready(); tg.expand(); 
+                if(tg.initDataUnsafe.start_param) { referralParam = tg.initDataUnsafe.start_param; }
+                const user = tg.initDataUnsafe.user;
+                if (user) {
+                    if(user.first_name) userName = user.first_name + (user.last_name ? " " + user.last_name : "");
+                    if(user.photo_url) {
+                        userPhoto = user.photo_url;
+                        const avatarEl = document.getElementById('user-avatar-container');
+                        if(avatarEl) { avatarEl.innerHTML = `<img src="${userPhoto}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`; }
+                    }
+                }
+            }
+        }
+
+        function initApp() {
+            loadMonetagSDK();
+            loadShopHTML(); 
+            loadPrivacyHTML(); // Load Privacy
+            loadRateHTML(); // Load Rate Us
+            loadGameSettings(); // LOAD NEW GAME SETTINGS
+            if(db) {
+                db.ref('admin_settings').on('value', snapshot => {
+                    if(snapshot.exists()) {
+                        const settings = snapshot.val();
+                        if(settings.daily_rewards) dailyRewards = settings.daily_rewards;
+                        if(settings.spin_limits) spinLimits = settings.spin_limits;
+                        if(settings.scratch_limits) scratchLimits = settings.scratch_limits;
+                        if(settings.withdrawal_config) withdrawalSettings = settings.withdrawal_config;
+                        if(settings.conversion_rates) conversionRates = settings.conversion_rates;
+                        if(settings.referral_reward) {
+                            globalReferralReward = parseInt(settings.referral_reward);
+                            document.getElementById('ref-reward-info').innerText = `${globalReferralReward} Coins per referral`;
+                        }
+                    }
+                    renderDailyCheckinUI(0, false); 
+                });
+            }
+            updateUI();
+        }
+
+        // === GAME SETTINGS LOADER ===
+        function loadGameSettings() {
+            if(!db) return;
+            
+            // Load Admin Settings
+            db.ref('admin_settings/game_config').on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    gameConfig = snapshot.val();
+                }
+            });
+
+            // Load User Sequences for Cycling Logic
+            if(currentUserId) {
+                db.ref('users/' + currentUserId).on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if(data) {
+                        userSpinSequence = data.spinSequence || 0;
+                        userScratchSequence = data.scratchSequence || 0;
+                    }
+                });
+            }
+        }
+
+        // === AD-GATING LOGIC (FIXED) ===
+        function showAdGate() {
+            return new Promise((resolve) => {
+                const btn = document.activeElement;
+                let originalText = "";
+                
+                // Only change text if it's a real button to avoid layout issues
+                if(btn && btn.tagName === 'BUTTON') {
+                    originalText = btn.innerText;
+                    btn.innerText = "Loading Ad...";
+                    btn.disabled = true;
+                }
+
+                // 3 Second Timeout Promise
+                const timeout = new Promise(r => setTimeout(r, 3000));
+
+                const showAds = async () => {
+                    try {
+                        // 1. Monetag
+                        if (typeof window['show_' + config.MONETAG_ZONE_ID] === 'function') {
+                             await window['show_' + config.MONETAG_ZONE_ID]().catch(e => console.log('Monetag skip', e));
+                        }
+                        // 2. Gigapub
+                        if(typeof window.showGiga === 'function') {
+                            await window.showGiga().catch(e => console.log('Giga skip', e));
+                        }
+                    } catch (e) {
+                        console.log("Ad error", e);
+                    }
+                };
+
+                // Race: Whichever finishes first (Ads or 3s Timeout) triggers the next step
+                Promise.race([showAds(), timeout]).then(() => {
+                     if(btn && btn.tagName === 'BUTTON') {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                     }
+                     resolve();
+                });
+            });
+        }
+        
+        function showPostAdReward() { return showAdGate(); }
+
+        // === SHOP HTML LOGIC (FIREBASE CONFIG 2 - FIXED RENDERER) ===
+        function loadShopHTML() {
+            const loader = document.getElementById('shop-loader');
+            const container = document.getElementById('shop-container');
+            
+            if(!shopDb) {
+                console.error("Shop Database not initialized");
+                loader.innerHTML = "Connection Error.<br>Please check API Config.";
+                return;
+            }
+
+            // Fetch HTML string from 'shop_settings/html_content'
+            shopDb.ref('shop_settings/html_content').on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    const rawHtml = snapshot.val();
+                    container.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%'; 
+                    iframe.style.border = 'none';
+                    container.appendChild(iframe);
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(rawHtml);
+                    doc.close();
+                    loader.style.display = 'none';
+                    container.style.display = 'block';
+                } else {
+                    loader.innerHTML = 'Shop content not found in database.';
+                    container.style.display = 'none';
+                }
+            });
+        }
+
+        // === PRIVACY POLICY HTML LOGIC (FIREBASE CONFIG 2) ===
+        function loadPrivacyHTML() {
+            const loader = document.getElementById('privacy-loader');
+            const container = document.getElementById('privacy-container');
+            
+            if(!shopDb) return;
+
+            // Fetch HTML string from 'shop_settings/privacy_html'
+            shopDb.ref('shop_settings/privacy_html').on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    const rawHtml = snapshot.val();
+                    container.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%'; 
+                    iframe.style.border = 'none';
+                    container.appendChild(iframe);
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(rawHtml);
+                    doc.close();
+                    loader.style.display = 'none';
+                    container.style.display = 'block';
+                } else {
+                    loader.innerHTML = 'Privacy Policy content not found.';
+                    container.style.display = 'none';
+                }
+            });
+        }
+
+        // === RATE US HTML LOGIC (FIREBASE CONFIG 2) ===
+        function loadRateHTML() {
+            const loader = document.getElementById('rate-loader');
+            const container = document.getElementById('rate-container');
+            
+            if(!shopDb) return;
+
+            // Fetch HTML string from 'shop_settings/rate_html'
+            shopDb.ref('shop_settings/rate_html').on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    const rawHtml = snapshot.val();
+                    container.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%'; 
+                    iframe.style.border = 'none';
+                    container.appendChild(iframe);
+                    const doc = iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(rawHtml);
+                    doc.close();
+                    loader.style.display = 'none';
+                    container.style.display = 'block';
+                } else {
+                    loader.innerHTML = 'Rate Us content not found.';
+                    container.style.display = 'none';
+                }
+            });
+        }
+
+        function handleUserLogin(user) {
+            if(!db || !currentUserId) return;
+
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe.user) {
+                const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+                const updates = {};
+                if(tgUser.username) updates.telegramUsername = tgUser.username;
+                if(tgUser.photo_url) updates.photoUrl = tgUser.photo_url;
+                if(tgUser.id) updates.telegramId = tgUser.id;
+                if(Object.keys(updates).length > 0) { db.ref('users/' + currentUserId).update(updates); }
+            }
+            
+            db.ref('users/' + currentUserId).on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    const data = snapshot.val();
+                    totalCoins = data.coins || 0;
+                    totalDollars = data.balance || 0.00;
+                    
+                    if(data.firstName) userName = data.firstName;
+                    if(data.photoUrl) userPhoto = data.photoUrl;
+                    if(data.telegramId) telegramId = data.telegramId;
+                    if(data.telegramUsername) telegramUsername = data.telegramUsername;
+
+                    let linkId = telegramId || currentUserId; 
+                    document.getElementById('myReferLink').innerText = `https://t.me/${config.BOT_USERNAME}?startapp=${linkId}`;
+
+                    checkSubscriptionExpiry(data);
+                    if(data.plan) currentUserPlan = data.plan; 
+                    let planKey = getPlanKey(currentUserPlan);
+                    
+                    maxDailySpins = spinLimits[planKey] || 10;
+                    const todayStr = new Date().toDateString();
+                    const lastSpinStr = data.lastSpinDate ? new Date(data.lastSpinDate).toDateString() : "";
+                    const usedSpins = (lastSpinStr === todayStr) ? (data.spinsToday || 0) : 0;
+                    dailySpins = maxDailySpins - usedSpins;
+                    if(dailySpins < 0) dailySpins = 0;
+                    document.getElementById('spinCount').innerText = `${dailySpins}/${maxDailySpins}`;
+
+                    maxDailyScratches = scratchLimits[planKey] || 5; 
+                    const lastScratchStr = data.lastScratchDate ? new Date(data.lastScratchDate).toDateString() : "";
+                    const usedScratches = (lastScratchStr === todayStr) ? (data.scratchesToday || 0) : 0;
+                    dailyScratches = maxDailyScratches - usedScratches;
+                    if(dailyScratches < 0) dailyScratches = 0;
+                    document.getElementById('scratchCountDisplay').innerText = `Cards Left: ${dailyScratches} / ${maxDailyScratches}`;
+
+                    const lastCheckin = data.lastCheckinDate || 0;
+                    const streak = data.checkinStreak || 0;
+                    renderDailyCheckinUI(streak, lastCheckin, planKey);
+                    updateUI();
+                    updateProfileUI(userName, telegramId || currentUserId, telegramUsername, userPhoto); 
+                    loadReferralData(currentUserId);
+                }
+            });
+            loadWithdrawHistory();
+        }
+
+        function getPlanKey(planName) {
+            if (planName === '1 Week') return 'plan_1_week';
+            if (planName === '15 Days') return 'plan_15_days';
+            if (planName === '1 Month') return 'plan_1_month';
+            if (planName === '3 Months') return 'plan_3_months';
+            return 'free';
+        }
+        
+        function checkSubscriptionExpiry(userData) {
+            if(userData.plan === 'free' || !userData.planEndDate) {
+                document.getElementById('premiumBadgeHeader').style.display = 'none';
+                document.getElementById('subscriptionCard').style.display = 'none';
+                currentUserPlan = 'free';
+                return;
+            }
+            const now = Date.now();
+            if (now > userData.planEndDate) {
+                db.ref('users/' + currentUserId).update({ plan: 'free', planStartDate: null, planEndDate: null }).then(() => { alert("Subscription expired."); });
+            } else {
+                currentUserPlan = userData.plan;
+                document.getElementById('premiumBadgeHeader').style.display = 'flex';
+                document.getElementById('subscriptionCard').style.display = 'block';
+                document.getElementById('subPlanName').innerText = userData.plan + " Premium";
+                let percentage = ((now - userData.planStartDate) / (userData.planEndDate - userData.planStartDate)) * 100;
+                if(percentage > 100) percentage = 100;
+                document.getElementById('subProgressBar').style.width = percentage + "%";
+                const daysLeft = Math.ceil((userData.planEndDate - now) / (1000 * 60 * 60 * 24));
+                document.getElementById('subDaysLeft').innerText = daysLeft + " Days Left";
+                document.getElementById('subExpiryDate').innerText = "Expires: " + new Date(userData.planEndDate).toDateString();
+            }
+        }
+
+        function loadWithdrawHistory() {
+            if(!db || !currentUserId) return;
+            const historyContainer = document.getElementById('withdraw-history-list');
+            db.ref('withdrawals').orderByChild('userId').equalTo(currentUserId).on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    let html = '';
+                    const list = [];
+                    snapshot.forEach(child => { list.push(child.val()); });
+                    list.sort((a,b) => b.date - a.date);
+                    list.forEach(item => {
+                        const dateStr = new Date(item.date).toLocaleDateString();
+                        let statusColor = '#F59E0B'; 
+                        if(item.status === 'Approved') statusColor = '#10B981'; 
+                        if(item.status === 'Rejected') statusColor = '#EF4444'; 
+                        html += `
+                        <div class="list-item">
+                            <div class="li-img" style="background:#F3F4F6;"><i class="fa-solid fa-wallet" style="color:#6B7280;"></i></div>
+                            <div class="li-info"><div class="li-title">${item.method} (${item.amount}$)</div><div class="li-sub">${dateStr}</div></div>
+                            <div class="li-action" style="background:transparent; color:${statusColor}; border:1px solid ${statusColor}; font-weight:800;">${item.status}</div>
+                        </div>`;
+                    });
+                    historyContainer.innerHTML = html;
+                } else { historyContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#9CA3AF; font-size:12px;">No transactions found</div>`; }
+            });
+        }
+
+        function renderDailyCheckinUI(streak, lastCheckinDate, planKey = 'free') {
+            const today = new Date().toDateString();
+            const lastDate = new Date(lastCheckinDate).toDateString();
+            const isClaimedToday = (today === lastDate);
+            const rewards = dailyRewards[planKey] || dailyRewards['free'];
+            
+            for(let i = 0; i < 7; i++) {
+                const dayEl = document.getElementById('day-' + i);
+                const valEl = document.getElementById('val-' + i);
+                valEl.innerText = "+" + rewards[i];
+                dayEl.className = 'day-wrapper';
+                if(i === 6) dayEl.querySelector('.day-icon').className = "fa-solid fa-trophy day-icon";
+                else dayEl.querySelector('.day-icon').className = "fa-solid fa-gift day-icon";
+                
+                if (i < streak) { dayEl.classList.add('claimed'); dayEl.querySelector('.day-icon').className = "fa-solid fa-check day-icon"; } 
+                else if (i === streak) {
+                    if (isClaimedToday) dayEl.classList.add('locked');
+                    else {
+                        dayEl.classList.add('today');
+                        if(i===6) dayEl.querySelector('.day-icon').className = "fa-solid fa-trophy day-icon";
+                    }
+                } else { dayEl.classList.add('locked'); }
+            }
+            document.getElementById('streak-display').innerText = `Streak: ${streak} Days`;
+        }
+
+        function attemptCheckin(dayIndex) {
+            if(!db || !currentUserId) return;
+            db.ref('users/' + currentUserId).once('value').then(snapshot => {
+                const data = snapshot.val();
+                const now = new Date();
+                const todayStr = now.toDateString();
+                const lastDateStr = new Date(data.lastCheckinDate || 0).toDateString();
+                
+                if (todayStr === lastDateStr) { alert("Already checked in today!"); return; }
+                if (dayIndex !== (data.checkinStreak || 0)) { if(dayIndex > (data.checkinStreak || 0)) { alert("Claim previous days first!"); return; } }
+                
+                let planKey = getPlanKey(data.plan);
+                const rewardAmount = (dailyRewards[planKey] || dailyRewards['free'])[data.checkinStreak || 0] || 50; 
+                let nextStreak = (data.checkinStreak || 0) + 1;
+                if(nextStreak > 6) nextStreak = 0; 
+
+                showPostAdReward().then(() => {
+                    db.ref('users/' + currentUserId).update({
+                        coins: (data.coins || 0) + rewardAmount,
+                        lastCheckinDate: firebase.database.ServerValue.TIMESTAMP,
+                        checkinStreak: nextStreak
+                    }).then(() => { alert(`Check-in Successful!\nReceived +${rewardAmount} Coins`); });
+                });
+            });
+        }
+
+        function processReferral(newUserId, referrerTgId, newUserName) {
+            db.ref('users').orderByChild('telegramId').equalTo(parseInt(referrerTgId)).once('value').then(snapshot => {
+                let referrerUid = null;
+                if(snapshot.exists()) { snapshot.forEach(child => { referrerUid = child.key; }); } 
+                else { referrerUid = referrerTgId; }
+                
+                if(referrerUid && referrerUid !== newUserId) {
+                    db.ref(`users/${newUserId}/referred_by`).set(referrerUid);
+                    db.ref(`users/${referrerUid}/referrals/${newUserId}`).set({ name: newUserName, joinedAt: firebase.database.ServerValue.TIMESTAMP });
+                }
+            });
+        }
+
+        function loadReferralData(userId) {
+            const listContainer = document.getElementById('team-list-container');
+            const referCountEl = document.getElementById('referCount');
+            const earningsEl = document.getElementById('totalReferEarnings');
+            const claimBtn = document.getElementById('btnClaimRefRewards');
+            
+            db.ref(`users/${userId}`).once('value', (userSnap) => {
+                const userData = userSnap.val();
+                db.ref(`users/${userId}/referrals`).once('value', (snapshot) => {
+                    if(snapshot.exists()) {
+                        const count = snapshot.numChildren();
+                        referCountEl.innerText = `${count} Members`;
+                        const newRef = count - (userData.referrals_claimed_count || 0);
+                        const availableCoins = newRef * globalReferralReward;
+                        earningsEl.innerText = availableCoins.toLocaleString();
+                        
+                        if(availableCoins > 0) { claimBtn.disabled = false; claimBtn.innerText = `CLAIM ${availableCoins} COINS`; }
+                        else { claimBtn.disabled = true; claimBtn.innerText = "NO COINS TO CLAIM"; }
+
+                        let html = '';
+                        const refList = [];
+                        snapshot.forEach(child => { refList.push(child.val()); });
+                        refList.sort((a,b) => b.joinedAt - a.joinedAt);
+
+                        refList.forEach(ref => {
+                            const date = ref.joinedAt ? new Date(ref.joinedAt).toLocaleDateString() : 'Unknown';
+                            const initial = ref.name ? ref.name.charAt(0).toUpperCase() : 'U';
+                            html += `
+                            <div class="team-item">
+                                <div class="team-img" style="color:#6B7280; font-weight:700;">${initial}</div>
+                                <div class="team-info"><div class="team-name">${ref.name || 'User'}</div><div class="team-date">Joined: ${date}</div></div>
+                                <div class="team-status">+${globalReferralReward} Coins</div>
+                            </div>`;
+                        });
+                        listContainer.innerHTML = html;
+                    } else {
+                        listContainer.innerHTML = `<div style="text-align:center; padding:30px; color:#9CA3AF;">No referrals yet. Share your link!</div>`;
+                        referCountEl.innerText = "0 Members"; earningsEl.innerText = "0"; claimBtn.disabled = true;
+                    }
+                });
+            });
+        }
+
+        function claimReferralEarnings() {
+            if(!db || !currentUserId) return;
+            showPostAdReward().then(() => {
+                const btn = document.getElementById('btnClaimRefRewards');
+                btn.disabled = true;
+                db.ref(`users/${currentUserId}`).once('value', (snap) => {
+                    const userData = snap.val();
+                    db.ref(`users/${currentUserId}/referrals`).once('value', (refSnap) => {
+                        const totalReferrals = refSnap.exists() ? refSnap.numChildren() : 0;
+                        const newReferrals = totalReferrals - (userData.referrals_claimed_count || 0);
+                        if(newReferrals > 0) {
+                            const coinsToAdd = newReferrals * globalReferralReward;
+                            db.ref(`users/${currentUserId}`).update({
+                                coins: (userData.coins || 0) + coinsToAdd,
+                                referrals_claimed_count: totalReferrals
+                            }).then(() => {
+                                alert(`Success! ${coinsToAdd} Coins moved to Main Wallet.`);
+                                loadReferralData(currentUserId); updateUI();
+                            });
+                        } else { btn.disabled = false; }
+                    });
+                });
+            });
+        }
+
+        function saveUserData() {
+            if(currentUserId && db) { db.ref(`users/${currentUserId}`).update({ coins: totalCoins, balance: totalDollars }); }
+        }
+
+        function updateProfileUI(name, id, username, photo) {
+            document.getElementById('user-name').innerText = name;
+            const userEl = document.getElementById('user-username');
+            if(username) { userEl.innerText = "@" + username; userEl.style.display = 'block'; } else { userEl.style.display = 'none'; }
+            document.getElementById('user-id').innerText = `ID: ${id}`;
+            if (photo) { document.getElementById('user-avatar-container').innerHTML = `<img src="${photo}" style="width:100%; height:100%; object-fit:cover;">`; }
+        }
+
+        // === PROFILE NAVIGATION WITH ADS ===
+        function handleProfileNav(action) {
+            showAdGate().then(() => {
+                if(action === 'refer') switchTab('refer-page');
+                if(action === 'leaderboard') openLeaderboard();
+                if(action === 'channel') window.open('https://t.me/creatorcashpro', '_blank');
+                if(action === 'payment') window.open('https://t.me/creatorcashpropayment', '_blank');
+                if(action === 'support') window.open('https://t.me/cashbinpandaadmin', '_blank');
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('header-points').innerText = totalCoins.toLocaleString();
+            document.getElementById('balance-dollar').innerText = "$" + totalDollars.toFixed(2);
+            document.getElementById('balance-coins').innerText = totalCoins.toLocaleString();
+            if(document.getElementById('wallet-balance')) document.getElementById('wallet-balance').innerText = "$" + totalDollars.toFixed(2);
+            if(document.getElementById('profile-balance')) document.getElementById('profile-balance').innerText = "$" + totalDollars.toFixed(2);
+            if(document.getElementById('shop-balance')) document.getElementById('shop-balance').innerText = totalCoins.toLocaleString();
+            
+            if(document.getElementById('convAvailable')) {
+                document.getElementById('convAvailable').innerText = totalCoins.toLocaleString();
+                let planKey = getPlanKey(currentUserPlan);
+                let rate = conversionRates[planKey] || conversionRates['free'];
+                document.querySelector('.conv-subtitle').innerText = `${rate.coins} Coins = $${rate.cash} USD`;
+                document.querySelector('.conv-field span').innerText = `Min: ${rate.coins}`;
+                let convertUnits = Math.floor(totalCoins / rate.coins);
+                let receiveAmount = convertUnits * rate.cash;
+                document.getElementById('convReceive').innerText = "$" + receiveAmount.toFixed(2);
+            }
+        }
+
+        function loadMonetagSDK() {
+            const script = document.createElement('script');
+            script.src = '//libtl.com/sdk.js'; 
+            script.setAttribute('data-zone', config.MONETAG_ZONE_ID);
+            script.setAttribute('data-sdk', `show_${config.MONETAG_ZONE_ID}`);
+            script.async = true;
+            document.body.appendChild(script);
+        }
+
+        function switchTab(pageId, btnElement) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if(target) target.classList.add('active');
+            if(btnElement) {
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            
+            // === FULL SCREEN PAGES LOGIC ===
+            // This now includes shop-page, privacy-page, and rate-page
+            if(pageId === 'shop-page' || pageId === 'privacy-page' || pageId === 'rate-page') {
+                // Hide Global Header
+                document.getElementById('app-header').style.display = 'none';
+                // Remove Padding from Main Container to allow full width/height
+                document.getElementById('main-container').style.padding = '0';
+                // Ensure bottom nav space is kept (optional, but good for UX)
+                document.getElementById('main-container').style.paddingBottom = '75px'; 
+            } else {
+                // Restore Header for other pages
+                document.getElementById('app-header').style.display = 'flex';
+                // Restore Default Padding
+                document.getElementById('main-container').style.padding = '20px';
+                document.getElementById('main-container').style.paddingBottom = '100px';
+            }
+
+            if(pageId === 'tasks') window.loadFirebaseTasks();
+            if(pageId === 'ads-page') initAdsPage();
+            if(pageId === 'refer-page' && currentUserId) loadReferralData(currentUserId);
+            // Shop, Privacy, and Rate Loaders are handled separately or via init
+        }
+
+        function copyMyReferLink() {
+            const link = document.getElementById('myReferLink').innerText;
+            if(link.includes('Loading')) return;
+            navigator.clipboard.writeText(link).then(() => alert("Referral Link Copied!"));
+        }
+
+        function addPoints(amt) { totalCoins += amt; updateUI(); saveUserData(); }
+
+        function toggleDarkMode() {
+            const isChecked = document.getElementById('darkModeSwitch').checked;
+            if(isChecked) document.body.classList.add('dark-mode'); else document.body.classList.remove('dark-mode');
+        }
+
+        // === LANGUAGE TOGGLE LOGIC (UPDATED) ===
+        function toggleLanguage() {
+            const isChecked = document.getElementById('langSwitch').checked;
+            // Checked = ON = Bangla
+            // Unchecked = OFF = English
+            const lang = isChecked ? 'bn' : 'en';
+            
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if(translations[key] && translations[key][lang]) {
+                    el.innerText = translations[key][lang];
+                }
+            });
+        }
+
+        function openConvertModal() { updateUI(); document.getElementById('convertOverlay').classList.add('open'); }
+        function closeConvertModal() { document.getElementById('convertOverlay').classList.remove('open'); }
+        
+        // === CONVERT WITH AD ===
+        function processConversionWithAd() {
+            let planKey = getPlanKey(currentUserPlan);
+            let rate = conversionRates[planKey] || conversionRates['free'];
+            
+            // VALIDATION FIRST (Before showing ad)
+            if (totalCoins < rate.coins) { alert(`Minimum ${rate.coins} coins required!`); return; }
+            let convertUnits = Math.floor(totalCoins / rate.coins);
+            if(convertUnits < 1) return;
+
+            showAdGate().then(() => {
+                let coinsToDeduct = convertUnits * rate.coins;
+                let dollarsToAdd = convertUnits * rate.cash;
+                
+                totalCoins -= coinsToDeduct; 
+                totalDollars += dollarsToAdd;
+                
+                updateUI(); saveUserData(); closeConvertModal();
+                alert(`Success! Converted ${coinsToDeduct} coins to $${dollarsToAdd.toFixed(2)}`);
+            });
+        }
+        
+        let currentWithdrawMin = 0; 
+        let currentWithdrawMethod = "";
+        let currentWithdrawFeePercent = 0;
+
+        function openWithdrawModal(method) {
+            let planKey = getPlanKey(currentUserPlan);
+            let planSettings = withdrawalSettings[planKey] || withdrawalSettings['free'];
+            
+            if(method === 'Bkash') { currentWithdrawMin = planSettings.bkash_min || 5; currentWithdrawFeePercent = planSettings.bkash_fee || 0; } 
+            else if (method === 'Nagad') { currentWithdrawMin = planSettings.nagad_min || 5; currentWithdrawFeePercent = planSettings.nagad_fee || 0; } 
+            else if (method === 'Mobile Recharge') { currentWithdrawMin = planSettings.recharge_min || 2; currentWithdrawFeePercent = planSettings.recharge_fee || 0; }
+
+            currentWithdrawMethod = method; 
+            document.getElementById('withdrawTitle').innerText = method + " Withdraw";
+            document.getElementById('withdrawSubtitle').innerText = "Minimum: $" + currentWithdrawMin.toFixed(2);
+            document.getElementById('withdrawNum').value = ""; 
+            document.getElementById('withdrawAmount').value = "";
+            document.getElementById('vatFee').innerText = "$0.00"; 
+            document.getElementById('vatTotal').innerText = "$0.00";
+            document.getElementById('vatPercentDisplay').innerText = currentWithdrawFeePercent;
+            document.getElementById('withdrawOverlay').classList.add('open');
+        }
+
+        function closeWithdrawModal() { document.getElementById('withdrawOverlay').classList.remove('open'); }
+        
+        function updateWithdrawCalc() {
+            let amount = parseFloat(document.getElementById('withdrawAmount').value);
+            if(isNaN(amount) || amount < 0) { document.getElementById('vatFee').innerText = "$0.00"; document.getElementById('vatTotal').innerText = "$0.00"; return; }
+            let fee = amount * (currentWithdrawFeePercent / 100); 
+            let totalDeduct = amount + fee;
+            document.getElementById('vatFee').innerText = "$" + fee.toFixed(2); 
+            document.getElementById('vatTotal').innerText = "$" + totalDeduct.toFixed(2);
+        }
+
+        // === WITHDRAW WITH AD (FIXED) ===
+        function submitWithdrawWithAd() {
+            let number = document.getElementById('withdrawNum').value; 
+            let amount = parseFloat(document.getElementById('withdrawAmount').value);
+            
+            // VALIDATION FIRST (Before Showing Ad)
+            if(number.length < 10) { alert("Please enter a valid phone number!"); return; }
+            if(isNaN(amount) || amount < currentWithdrawMin) { alert("Minimum withdrawal amount for your plan is $" + currentWithdrawMin.toFixed(2)); return; }
+            let fee = amount * (currentWithdrawFeePercent / 100); 
+            let totalDeduct = amount + fee;
+            if(totalDeduct > totalDollars) { alert("Insufficient Balance!"); return; }
+
+            showAdGate().then(() => {
+                if(db && currentUserId) {
+                    db.ref('withdrawals').push({
+                        userId: currentUserId,
+                        userName: userName,
+                        method: currentWithdrawMethod,
+                        number: number,
+                        amount: amount,
+                        fee: fee, 
+                        totalDeducted: totalDeduct,
+                        planAtTime: currentUserPlan, 
+                        status: 'Pending',
+                        date: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        totalDollars -= totalDeduct; 
+                        updateUI(); saveUserData(); closeWithdrawModal();
+                        alert(`Withdrawal Request Submitted!\nMethod: ${currentWithdrawMethod}\nAmount: $${amount}\nFee: $${fee.toFixed(2)}`);
+                    });
+                } else { alert("Connection error. Try again."); }
+            });
+        }
+
+        let currentPlanPrice = "200"; let currentPlanName = "1 Month";
+        function openPremiumModal() { 
+            if(currentUserPlan !== 'free') { alert("You already have an active Premium Plan!"); return; }
+            document.getElementById('premiumOverlay').classList.add('open'); 
+        }
+        function closePremiumModal() { document.getElementById('premiumOverlay').classList.remove('open'); }
+        function selectPlan(element, price, name) {
+            document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected'); currentPlanPrice = price; currentPlanName = name;
+            document.getElementById('selectedPlanName').innerText = name;
+            document.getElementById('selectedPlanPrice').innerText = "৳" + price;
+        }
+        function copyAdminNum() { navigator.clipboard.writeText(document.getElementById('adminWalletNum').innerText).then(() => alert("Copied!")); }
+        function submitPremiumRequest() {
+            const sender = document.getElementById('paySenderNum').value;
+            const trx = document.getElementById('payTrxId').value;
+            if(!sender || !trx) { alert("Invalid Details"); return; }
+            if(db && currentUserId) {
+                db.ref('premium_requests').push({ userId: currentUserId, userName: userName, plan: currentPlanName, price: currentPlanPrice, sender: sender, trxId: trx, status: 'Pending', date: firebase.database.ServerValue.TIMESTAMP });
+            }
+            closePremiumModal();
+            alert("Request Submitted. Wait for approval.");
+        }
+
+        // === ADS PAGE LOGIC ===
+        let adConfig = { 'free': { limit: 10, reward: 10, cooldown_min: 10 } };
+        let userAdTimers = {}; let adTimerInterval = null; 
+
+        function initAdsPage() {
+            if(!db || !currentUserId) return;
+            const listWrapper = document.getElementById('ad-list-wrapper');
+            const doneMsg = document.getElementById('ads-completed-msg');
+            
+            db.ref('admin_settings/ad_config').once('value').then(snap => {
+                if(snap.exists()) { adConfig = snap.val(); }
+                db.ref('users/' + currentUserId).once('value').then(userSnap => {
+                    const userData = userSnap.val();
+                    const plan = userData.plan ? getPlanKey(userData.plan) : 'free';
+                    const currentConfig = adConfig[plan] || adConfig['free'];
+                    const limit = currentConfig.limit;
+                    const reward = currentConfig.reward;
+                    
+                    const todayStr = new Date().toDateString();
+                    const lastDate = userData.lastAdDate ? new Date(userData.lastAdDate).toDateString() : "";
+                    let watchedToday = (lastDate === todayStr) ? (userData.adsWatchedToday || 0) : 0;
+
+                    document.getElementById('adsLimitDisplay').innerText = limit;
+                    document.getElementById('adsDoneDisplay').innerText = watchedToday;
+                    document.getElementById('adsRewardDisplay').innerText = reward;
+
+                    if(watchedToday >= limit) { listWrapper.style.display = 'none'; doneMsg.style.display = 'block'; return; } 
+                    else { listWrapper.style.display = 'block'; doneMsg.style.display = 'none'; }
+
+                    userAdTimers = userData.adTimers || {};
+                    renderAdList(limit, watchedToday, reward, currentConfig.cooldown_min);
+                });
+            });
+        }
+
+        function renderAdList(limit, watched, reward, cooldownMin) {
+            const listWrapper = document.getElementById('ad-list-wrapper');
+            let html = '';
+            for(let i = 1; i <= 10; i++) {
+                const lastTime = userAdTimers['task_'+i] || 0;
+                const now = Date.now();
+                const diff = now - lastTime;
+                const cooldownMs = cooldownMin * 60 * 1000;
+                
+                let btnHtml = '';
+                if(diff < cooldownMs) {
+                    btnHtml = `<button class="btn-visit btn-timer" id="btn-task-${i}" disabled data-end="${lastTime + cooldownMs}">Wait</button>`;
+                } else {
+                    btnHtml = `<button class="btn-visit" onclick="handleAdClick(${i}, ${reward}, ${limit}, ${cooldownMin})">VISIT</button>`;
+                }
+                html += `
+                <div class="ad-task-item">
+                    <div class="ad-task-left"><div class="ad-task-icon"><i class="fa-solid fa-play"></i></div><div class="ad-task-info"><div class="ad-task-title">Ad Task ${i < 10 ? '0'+i : i}</div><div class="ad-task-reward">+${reward} Coins</div></div></div>
+                    ${btnHtml}
+                </div>`;
+            }
+            listWrapper.innerHTML = html;
+            startLiveTimer();
+        }
+
+        function startLiveTimer() {
+            if(adTimerInterval) clearInterval(adTimerInterval);
+            adTimerInterval = setInterval(() => {
+                const timerBtns = document.querySelectorAll('.btn-timer');
+                if(timerBtns.length === 0) return;
+                timerBtns.forEach(btn => {
+                    const endTime = parseInt(btn.getAttribute('data-end'));
+                    const now = Date.now();
+                    const left = endTime - now;
+                    if(left <= 0) { initAdsPage(); } 
+                    else {
+                        const m = Math.floor((left % (1000 * 60 * 60)) / (1000 * 60));
+                        const s = Math.floor((left % (1000 * 60)) / 1000);
+                        btn.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                    }
+                });
+            }, 1000);
+        }
+
+        function handleAdClick(taskId, reward, limit, cooldownMin) {
+            showPostAdReward().then(() => {
+                 processAdSuccess(taskId, reward, limit);
+            });
+        }
+
+        function processAdSuccess(taskId, reward, limit) {
+            if(!db || !currentUserId) return;
+            db.ref('users/' + currentUserId).once('value').then(snap => {
+                const data = snap.val();
+                const todayStr = new Date().toDateString();
+                const lastDate = data.lastAdDate ? new Date(data.lastAdDate).toDateString() : "";
+                let currentCount = (lastDate === todayStr) ? (data.adsWatchedToday || 0) : 0;
+
+                if(currentCount >= limit) { alert("Daily Limit Reached!"); initAdsPage(); return; }
+                const newCount = currentCount + 1;
+                const newCoins = (data.coins || 0) + reward;
+                
+                db.ref('users/' + currentUserId).update({
+                    coins: newCoins,
+                    adsWatchedToday: newCount,
+                    lastAdDate: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    db.ref(`users/${currentUserId}/adTimers/task_${taskId}`).set(firebase.database.ServerValue.TIMESTAMP).then(() => {
+                        alert(`Task Completed! You got +${reward} coins.`);
+                        initAdsPage(); 
+                    });
+                });
+            });
+        }
+
+        // === UPDATED SPIN LOGIC ===
+        // Box Order Mapping: 0, 1, 2, 7, 4, 3, 6, 5 (Clockwise or standard mapping)
+        // IDs are box-0 to box-7.
+        
+        function openSpinModal() { 
+            const isPremium = (currentUserPlan !== 'free');
+            const values = isPremium ? gameConfig.spin.premium_values : gameConfig.spin.free_values;
+            
+            // Update UI with Admin Values
+            for(let i = 0; i < 8; i++) {
+                const box = document.getElementById('box-' + i);
+                if(box) {
+                    const val = values[i] !== undefined ? values[i] : (isPremium ? 50 : 5);
+                    box.querySelector('span').innerText = val;
+                }
+            }
+            document.getElementById('spinOverlay').classList.add('open'); 
+            document.getElementById('spinCount').innerText = `${dailySpins}/${maxDailySpins}`;
+        }
+
+        function closeSpinModal(){ if(!isSpinning) document.getElementById('spinOverlay').classList.remove('open'); }
+        
+        function startSpin() {
+            if(isSpinning) return;
+            if(dailySpins <= 0) { alert("Daily Spin Limit Reached!"); return; }
+
+            isSpinning = true; 
+            document.getElementById('spinBtn').disabled = true;
+            
+            let targetBoxIndex = 0;
+            const isPremium = (currentUserPlan !== 'free');
+
+            if (isPremium) {
+                // PREMIUM: Cycle through the boxes sequentially (Rotate/Cycle)
+                // box-0 -> box-1 -> ... -> box-7 -> box-0
+                targetBoxIndex = userSpinSequence % 8;
+            } else {
+                // FREE: Random box based on Probability (set in Admin array)
+                targetBoxIndex = Math.floor(Math.random() * 8);
+            }
+            
+            // Get value from UI
+            const targetValText = document.getElementById('box-' + targetBoxIndex).querySelector('span').innerText;
+            pendingSpinReward = parseInt(targetValText);
+            pendingSpinType = 'c';
+            
+            // Animation
+            let curr = 0; 
+            let rounds = 0; 
+            let speed = 50;
+            
+            // Linear Loop for Code Safety: 0, 1, 2, 3, 4, 5, 6, 7
+            const loopIds = [0, 1, 2, 3, 4, 5, 6, 7]; 
+
+            const loop = () => {
+                document.querySelectorAll('.spin-box').forEach(b => b.classList.remove('active'));
+                document.getElementById('box-' + loopIds[curr]).classList.add('active');
+                
+                if(rounds >= 3 && loopIds[curr] === targetBoxIndex) {
+                    setTimeout(() => { 
+                        document.getElementById('winAmount').innerText = "+" + pendingSpinReward;
+                        document.getElementById('winModal').classList.add('show');
+                    }, 500);
+                } else {
+                    curr++; 
+                    if(curr >= 8) { curr = 0; rounds++; }
+                    if(rounds >= 2) speed += 20; 
+                    setTimeout(loop, speed);
+                }
+            };
+            loop();
+        }
+        
+        function claimSpinReward() {
+            showAdGate().then(() => {
+                addPoints(pendingSpinReward);
+                dailySpins--;
+                document.getElementById('spinCount').innerText = `${dailySpins}/${maxDailySpins}`;
+                
+                if(currentUserId && db) {
+                     db.ref('users/' + currentUserId).once('value').then(snap => {
+                         let used = snap.val().spinsToday || 0;
+                         let lastDate = snap.val().lastSpinDate;
+                         // Increment Sequence
+                         let newSeq = (snap.val().spinSequence || 0) + 1;
+                         
+                         const todayStr = new Date().toDateString();
+                         const lastStr = lastDate ? new Date(lastDate).toDateString() : "";
+                         if(todayStr !== lastStr) used = 0;
+                         
+                         db.ref('users/' + currentUserId).update({ 
+                             spinsToday: used + 1, 
+                             lastSpinDate: firebase.database.ServerValue.TIMESTAMP,
+                             spinSequence: newSeq 
+                         });
+                     });
+                }
+                resetSpin();
+            });
+        }
+
+        function resetSpin(){
+            document.getElementById('winModal').classList.remove('show');
+            document.querySelectorAll('.spin-box').forEach(b=>b.classList.remove('active'));
+            document.getElementById('spinBtn').disabled=false;
+            isSpinning=false;
+        }
+
+        // === UPDATED SCRATCH LOGIC ===
+        let canvas, ctx, isDrawing=false;
+        let canScratchNow = true;
+
+        function openScratchModal() { 
+            // Check Limit
+            if(dailyScratches <= 0) { alert("Daily Scratch Limit Reached!"); return; }
+
+            const isPremium = (currentUserPlan !== 'free');
+            
+            // FREE USER COOLDOWN CHECK
+            if (!isPremium && currentUserId) {
+                db.ref('users/' + currentUserId).once('value', snapshot => {
+                    const data = snapshot.val();
+                    const lastTime = data.lastScratchDate || 0;
+                    const now = Date.now();
+                    const cooldownMs = (gameConfig.scratch.free.cooldown_hours || 24) * 60 * 60 * 1000;
+                    
+                    if (now - lastTime < cooldownMs) {
+                        const waitHours = Math.ceil((cooldownMs - (now - lastTime)) / (1000 * 60 * 60));
+                        alert(`Free Users can scratch every ${gameConfig.scratch.free.cooldown_hours} hours.\nPlease wait ${waitHours} hours.`);
+                        canScratchNow = false;
+                    } else {
+                        canScratchNow = true;
+                        setupScratchValue(isPremium);
+                    }
+                });
+            } else {
+                canScratchNow = true;
+                setupScratchValue(isPremium);
+            }
+        }
+        
+        function setupScratchValue(isPremium) {
+            if(!canScratchNow) return;
+
+            document.getElementById('scratchOverlay').classList.add('open');
+            
+            // DECIDE REWARD
+            if (isPremium) {
+                // Cycle through Premium Values
+                const list = gameConfig.scratch.premium_values || [20, 30, 40];
+                const index = userScratchSequence % list.length;
+                pendingScratchReward = list[index];
+            } else {
+                // Fixed Reward for Free
+                pendingScratchReward = gameConfig.scratch.free.reward || 5;
+            }
+
+            document.getElementById('scratchValue').innerText = "+" + pendingScratchReward;
+            document.getElementById('claimScratchBtn').style.display = 'none';
+            document.getElementById('scratchCountDisplay').innerText = `Cards Left: ${dailyScratches} / ${maxDailyScratches}`;
+            initScratch();
+        }
+
+        function closeScratchModal(){ document.getElementById('scratchOverlay').classList.remove('open'); }
+        
+        function initScratch(){
+            canvas=document.getElementById('scratchCanvas'); ctx=canvas.getContext('2d');
+            const cont=document.querySelector('.scratch-area-container');
+            canvas.width=cont.offsetWidth; canvas.height=cont.offsetHeight;
+            
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle='#C0C0C0'; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle='#555'; ctx.font="bold 20px Outfit"; ctx.textAlign="center"; 
+            ctx.fillText("SCRATCH ME", canvas.width/2, canvas.height/2);
+
+            canvas.ontouchstart = canvas.onmousedown = (e)=>{ isDrawing=true; scratch(e); };
+            canvas.ontouchend = canvas.onmouseup = ()=>{ isDrawing=false; checkScratch(); };
+            canvas.ontouchmove = canvas.onmousemove = scratch;
+        }
+        
+        function scratch(e){
+            if(!isDrawing) return;
+            e.preventDefault();
+            const rect=canvas.getBoundingClientRect(), x=(e.touches?e.touches[0].clientX:e.clientX)-rect.left, y=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+            
+            ctx.globalCompositeOperation='destination-out'; 
+            ctx.beginPath(); ctx.arc(x,y,25,0,Math.PI*2); ctx.fill();
+        }
+        
+        function checkScratch(){
+            if(document.getElementById('claimScratchBtn').style.display=='block') return;
+            const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+            let clear=0; for(let i=3;i<data.length;i+=4) if(data[i]===0) clear++;
+            if(clear/(canvas.width*canvas.height)>0.4) {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                document.getElementById('claimScratchBtn').style.display='block';
+            }
+        }
+        
+        function claimScratchWithAd(){ 
+            showAdGate().then(() => {
+                addPoints(pendingScratchReward); 
+                closeScratchModal(); 
+                dailyScratches--;
+                
+                if(currentUserId && db) {
+                     db.ref('users/' + currentUserId).once('value').then(snap => {
+                         let used = snap.val().scratchesToday || 0;
+                         let lastDate = snap.val().lastScratchDate;
+                         // Increment Sequence
+                         let newSeq = (snap.val().scratchSequence || 0) + 1;
+                         
+                         const todayStr = new Date().toDateString();
+                         const lastStr = lastDate ? new Date(lastDate).toDateString() : "";
+                         if(todayStr !== lastStr) used = 0;
+                         
+                         db.ref('users/' + currentUserId).update({ 
+                             scratchesToday: used + 1, 
+                             lastScratchDate: firebase.database.ServerValue.TIMESTAMP,
+                             scratchSequence: newSeq
+                         });
+                     });
+                }
+                alert(`Congratulations! You won ${pendingScratchReward} Coins.`);
+            });
+        }
+
+        window.loadFirebaseTasks = function() {
+            const container = document.getElementById('firebase-task-container');
+            if(!db) return;
+            container.innerHTML = `<div style="text-align:center; padding:50px 20px; color:var(--text-light);"><i class="fa-solid fa-spinner fa-spin" style="font-size:30px; margin-bottom:10px;"></i><p>Loading Tasks...</p></div>`;
+            db.ref('all_tasks').on('value', (snapshot) => {
+                if(snapshot.exists()) {
+                    let html = '';
+                    snapshot.forEach(child => {
+                        const task = child.val();
+                        html += `
+                        <div class="list-item">
+                            <div class="li-img" style="color:red; background: #FEF2F2;"><i class="${task.icon || 'fa-solid fa-globe'}"></i></div>
+                            <div class="li-info"><div class="li-title">${task.title}</div><div class="li-sub">+${task.reward} Coins</div></div>
+                            <button class="li-action" onclick="handleTaskStart('${task.link}', ${task.reward})">Start</button>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else { container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-light);">No tasks available right now.</div>`; }
+            });
+        }
+
+        function handleTaskStart(link, reward) {
+            if(!link) return;
+            window.open(link, '_blank');
+            setTimeout(() => {
+                if(window.confirm("Did you complete the task? Click OK to claim reward.")) {
+                    addPoints(parseInt(reward)); alert("Reward Added Successfully!");
+                }
+            }, 8000); 
+        }
+
+        function openLeaderboard() { switchTab('leaderboard-page'); loadLeaderboardData(); }
+
+        function loadLeaderboardData() {
+            if (!db) { renderLeaderboard([]); return; }
+            db.ref('users').once('value').then(snapshot => {
+                const users = [];
+                snapshot.forEach(child => {
+                    const u = child.val();
+                    const refCount = u.referrals ? Object.keys(u.referrals).length : 0;
+                    users.push({ name: u.firstName || 'User', count: refCount, photoUrl: u.photoUrl || null });
+                });
+                users.sort((a, b) => b.count - a.count);
+                renderLeaderboard(users.slice(0, 100));
+            });
+        }
+
+        function renderLeaderboard(list) {
+            const podiumDiv = document.getElementById('lb-podium');
+            const listDiv = document.getElementById('lb-list');
+            if(list.length === 0) { podiumDiv.innerHTML = '<div style="color:#999; font-size:12px;">No Data Available</div>'; listDiv.innerHTML = ''; return; }
+
+            const p1 = list[0]; const p2 = list[1] || {name: '-', count: 0}; const p3 = list[2] || {name: '-', count: 0}; 
+            const getInit = (n) => n ? n.charAt(0).toUpperCase() : '?';
+            const getAvatarHtml = (u) => { if(u.photoUrl) return `<img src="${u.photoUrl}" style="width:100%; height:100%; object-fit:cover;">`; return getInit(u.name); }
+
+            podiumDiv.innerHTML = `
+                <div class="pod-item rank-2">
+                    <div class="pod-avatar-box"><i class="fa-solid fa-crown pod-crown" style="color:#C0C0C0; font-size:20px;"></i><div class="pod-img" style="font-weight:800;color:#999;font-size:24px;">${getAvatarHtml(p2)}</div><div class="pod-rank-badge">2</div></div>
+                    <div class="pod-name">${p2.name}</div><div class="pod-refs">${p2.count} Refs</div>
+                </div>
+                <div class="pod-item rank-1" style="margin-bottom: 25px;">
+                    <div class="pod-avatar-box"><i class="fa-solid fa-crown pod-crown" style="color:#FFD700; font-size:32px; top:-30px;"></i><div class="pod-img" style="font-weight:800;color:#D4AF37;font-size:30px;">${getAvatarHtml(p1)}</div><div class="pod-rank-badge">1</div></div>
+                    <div class="pod-name" style="font-size:14px;">${p1.name}</div><div class="pod-refs" style="background:#FEF3C7; color:#D97706;">${p1.count} Refs</div>
+                </div>
+                <div class="pod-item rank-3">
+                    <div class="pod-avatar-box"><i class="fa-solid fa-crown pod-crown" style="color:#CD7F32; font-size:20px;"></i><div class="pod-img" style="font-weight:800;color:#A0522D;font-size:24px;">${getAvatarHtml(p3)}</div><div class="pod-rank-badge">3</div></div>
+                    <div class="pod-name">${p3.name}</div><div class="pod-refs">${p3.count} Refs</div>
+                </div>`;
+
+            let listHtml = '';
+            for(let i = 3; i < list.length; i++) {
+                const u = list[i];
+                listHtml += `<div class="lb-item"><div class="lb-rank">#${i + 1}</div><div class="lb-img">${getAvatarHtml(u)}</div><div class="lb-info"><div class="lb-name">${u.name}</div><div class="lb-sub">Member</div></div><div class="lb-score">${u.count} Refs</div></div>`;
+            }
+            if(list.length <= 3) listHtml = '<div style="text-align:center; padding:20px; color:#ccc; font-size:12px;">No more users</div>';
+            listDiv.innerHTML = listHtml;
+        }
+
+    </script>
+</body>
+</html>
